@@ -1,74 +1,96 @@
 import { For } from "solid-js";
 import Icon from "./Icon";
+import Photo from "./Photo";
 
-// Deterministic pseudo-random so layout is stable between renders.
-const rand = (seed) => {
-  const x = Math.sin(seed * 9301 + 49297) * 233280;
-  return x - Math.floor(x);
+// Small deterministic tilt so prints look hand-placed but stay stable.
+const tilt = (i, seed) => {
+  const x = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
+  return ((x - Math.floor(x)) - 0.5) * 3.2;
 };
-const fasteners = ["magnet", "pin", "tape", "magnet"];
 
 export default function Board(props) {
   const p = props.park;
   return (
     <section
       id={p.slug}
-      class="board"
+      class="park"
       data-index={props.index}
       style={{
-        "--board": p.theme.board,
         "--accent": p.theme.accent,
-        "--ink": p.theme.ink,
-        "--magnet": p.theme.magnet,
+        "--deep": p.theme.deep,
+        "--soft": p.theme.soft,
+        "--board": p.theme.board,
       }}
     >
-      <div class="board-texture" />
-      <header class="board-header">
-        <div class="sign">
-          <span class="sign-small">National Park</span>
-          <h2>{p.name}</h2>
-          <span class="sign-small">{p.dates}</span>
-        </div>
-        <div class="note pin-item" style={{ "--rot": "2deg" }}>
-          <span class="fastener tape" />
-          <p>{p.journal}</p>
+      <header class="band">
+        <h2 class="band-title reveal">{p.name}</h2>
+        <div class="band-meta">
+          <span>National Park</span>
+          <span>{p.state} · {p.dates}</span>
         </div>
       </header>
 
-      <div class="photo-grid">
-        <For each={p.photos}>
-          {(photo, i) => {
-            const r = rand(i() + props.index * 100);
-            const kind = fasteners[i() % fasteners.length];
-            return (
-              <figure
-                class="photo pin-item"
-                classList={{ portrait: photo.height > photo.width }}
-                style={{ "--rot": `${(r - 0.5) * 8}deg` }}
-                onClick={() => props.onOpen(photo)}
-              >
-                {kind === "magnet" ? (
-                  <span class="fastener magnet">
-                    <Icon name={p.icons[i() % p.icons.length]} />
-                  </span>
-                ) : (
-                  <span class={`fastener ${kind}`} />
-                )}
-                <img src={photo.src} width={photo.width} height={photo.height} loading="lazy" alt={photo.caption ?? `${p.name} photo ${i() + 1}`} />
-                {photo.caption && <figcaption>{photo.caption}</figcaption>}
-              </figure>
-            );
-          }}
-        </For>
+      <figure class="park-hero">
+        <div class="park-hero-media">
+          <Photo photo={p.hero} eager />
+        </div>
+        <figcaption>{p.hero.caption}</figcaption>
+      </figure>
+
+      <div class="park-intro">
+        <p class="journal reveal">{p.journal}</p>
+        <dl class="facts reveal">
+          <For each={p.facts}>
+            {(f) => (
+              <div>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
+            )}
+          </For>
+        </dl>
       </div>
 
-      <For each={p.icons}>
-        {(name, i) => (
-          <span class="sticker parallax-fast" style={{ top: `${15 + i() * 22}%`, [i() % 2 ? "right" : "left"]: "1.5%" }}>
-            <Icon name={name} />
+      <div class="board">
+        <div class="board-head">
+          <span class="board-tag">
+            {p.name} <em>{p.photos.length} photos</em>
           </span>
-        )}
-      </For>
+          <div class="board-pins">
+            <For each={p.icons}>
+              {(name) => (
+                <span class="enamel">
+                  <Icon name={name} />
+                </span>
+              )}
+            </For>
+          </div>
+        </div>
+
+        <div class="board-grid">
+          <For each={p.photos}>
+            {(photo, i) => (
+              <figure
+                class={`print print-${photo.shape}`}
+                style={{ "--tilt": `${tilt(i(), props.index)}deg` }}
+                tabindex="0"
+                onClick={() => props.onOpen(photo, p)}
+                onKeyDown={(e) => e.key === "Enter" && props.onOpen(photo, p)}
+              >
+                {i() % 3 === 0 ? (
+                  <span class="magnet magnet-icon">
+                    <Icon name={p.icons[(i() / 3) % p.icons.length]} />
+                  </span>
+                ) : (
+                  <span class="magnet" />
+                )}
+                <Photo photo={photo} />
+                {photo.caption && <figcaption>{photo.caption}</figcaption>}
+              </figure>
+            )}
+          </For>
+        </div>
+      </div>
     </section>
   );
 }

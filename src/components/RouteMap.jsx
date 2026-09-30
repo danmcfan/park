@@ -19,42 +19,42 @@ export default function RouteMap(props) {
   const van = createMemo(() => pointAt(props.progress ?? 0));
 
   return (
-    <svg class={`route-map ${props.large ? "large" : ""}`} viewBox="0 0 200 300" role="navigation" aria-label="Trip route">
-      {/* Rough state outlines for flavor: Utah / Wyoming */}
+    <svg class={`route-map ${props.large ? "large" : ""}`} viewBox="-10 0 220 300" aria-label="Trip route map">
+      {/* Simplified Utah / Wyoming outlines */}
       <path class="state" d="M20 170 H85 V150 H130 V295 H20 Z" />
       <path class="state" d="M110 20 H195 V140 H110 Z" />
-      <text class="state-label" x="30" y="288">UTAH</text>
-      <text class="state-label" x="150" y="134">WYOMING</text>
+      <text class="state-label" x="75" y="285" text-anchor="middle">Utah</text>
+      <text class="state-label" x="152" y="130" text-anchor="middle">Wyoming</text>
 
       <path class="route-bg" d={pathD} />
-      <path
-        class="route-done"
-        d={pathD}
-        style={{ "stroke-dasharray": `${van().traveled} ${total}` }}
-      />
+      <path class="route-done" d={pathD} style={{ "stroke-dasharray": `${van().traveled} ${total}` }} />
 
       <For each={parks}>
-        {(p, i) => (
-          <g
-            class="stop"
-            classList={{ active: props.active === i(), visited: (props.progress ?? 0) >= i() }}
-            transform={`translate(${p.map.x} ${p.map.y})`}
-            onClick={() => props.onSelect?.(i())}
-            tabindex="0"
-            role="link"
-            aria-label={`Go to ${p.name}`}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && props.onSelect?.(i())}
-          >
-            <circle r="7" style={{ fill: p.theme.board }} />
-            <text x={i() % 2 ? -11 : 11} y="4" text-anchor={i() % 2 ? "end" : "start"}>{p.name}</text>
-          </g>
-        )}
+        {(p, i) => {
+          const left = p.map.x > 120;
+          return (
+            <g
+              class="stop"
+              classList={{ active: props.active === i(), visited: (props.progress ?? 0) >= i() - 0.01 }}
+              transform={`translate(${p.map.x} ${p.map.y})`}
+              style={{ "--accent": p.theme.accent }}
+              onClick={() => props.onSelect?.(i())}
+              tabindex={props.onSelect ? "0" : "-1"}
+              role="link"
+              aria-label={`Go to ${p.name}`}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && props.onSelect?.(i())}
+            >
+              <circle class="hit" r="12" />
+              <circle class="dot" r="4.5" />
+              <text x={left ? -9 : 9} y="3.5" text-anchor={left ? "end" : "start"}>{p.name}</text>
+            </g>
+          );
+        }}
       </For>
 
       <g class="van" transform={`translate(${van().x} ${van().y})`}>
-        <rect x="-6" y="-4" width="12" height="7" rx="2" />
-        <circle cx="-3" cy="3.5" r="1.6" />
-        <circle cx="3" cy="3.5" r="1.6" />
+        <circle r="7" class="van-halo" />
+        <circle r="3.5" class="van-dot" />
       </g>
     </svg>
   );

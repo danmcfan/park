@@ -1,5 +1,30 @@
 # Design Concept
 
+## Direction (v2 — NPS-inspired)
+The look borrows from National Park Service print and web design so it reads as
+considered rather than generated:
+- **Unigrid black band**: fixed black top bar (wordmark + park nav) and a black title
+  band opening every park section.
+- **Type**: Source Sans 3 (stand-in for Frutiger) for UI/labels, Source Serif 4 (stand-in
+  for NPS Rawlinson) for titles and journal text. Small-caps tracked labels for metadata.
+  No handwriting fonts.
+- **Photography first**: full-bleed hero per park with a slow zoom-out on scroll; caption line
+  beneath like a brochure credit.
+- **Brochure map**: flat tan states, dotted planned route, solid black traveled route,
+  accent dot for "you are here". Doubles as navigation (sidebar rail on desktop ≥1100px).
+- **Board**: the bulletin board survives as a framed felt panel in the park's deep color.
+  Prints are white-bordered with ±1.6° tilt; every third print is held by an enamel-pin
+  magnet with a park line icon, the rest by plain round magnets. Pin badges sit top-right.
+- **Motion**: restrained — power3 ease-outs, prints rise into place, magnets pop in after,
+  no bouncing. Reduced-motion disables all of it.
+- Each park has 4 theme colors (`accent`, `deep`, `soft`, `board`) in `src/data/parks.js`.
+- Photo slots have fixed shapes (`wide` 3:2 / `tall` 4:5 / `square`); a row is
+  wide + tall + square on the 12-col grid, so keep counts in multiples of 3.
+
+Zion is the reference section; other parks inherit the same components.
+
+## Original concept (v1, superseded where it conflicts)
+
 ## Big idea
 Each park is a **corkboard / bulletin board** you scroll through. Photos are
 pinned or held by **park-themed magnets and pins**; small cut-out icons,

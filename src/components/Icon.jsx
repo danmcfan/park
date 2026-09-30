@@ -1,27 +1,46 @@
-// Simple sticker-style glyphs for magnets. Drawn in a 24x24 box with
-// currentColor so each park theme can recolor them.
+// Line icons for the enamel-pin magnets. 24x24, stroked with currentColor.
 const glyphs = {
-  mountain: () => <path d="M2 20 9 7l4 6 3-4 6 11z" />,
-  peaks: () => <path d="M1 20 7 8l3 5 4-10 4 8 2-2 3 11z" />,
-  cactus: () => <path d="M10 21V5a2 2 0 0 1 4 0v16zM6 13V9a1.5 1.5 0 0 1 3 0v4h1v2H8a2 2 0 0 1-2-2m12-2V8a1.5 1.5 0 0 0-3 0v5h-1v2h2a2 2 0 0 0 2-2z" />,
-  sun: () => <g><circle cx="12" cy="12" r="5" /><path d="M11 1h2v4h-2zm0 18h2v4h-2zM1 11h4v2H1zm18 0h4v2h-4z" /></g>,
-  sheep: () => <path d="M5 10a4 4 0 0 1 7-3 4 4 0 0 1 7 3 3 3 0 0 1-1 5H8v4H6v-4a3 3 0 0 1-1-5m11 5h2v4h-2zM3 8a3 3 0 0 1 3-3v3z" />,
-  hoodoo: () => <path d="M9 21h6l-1-4 1-3-1-3 1-2-1-3h1V4H9v2h1l-1 3 1 2-1 3 1 3z" />,
-  pine: () => <path d="m12 2 6 8h-3l4 6h-6v5h-2v-5H5l4-6H6z" />,
-  star: () => <path d="m12 2 3 7 7 .6-5.3 4.6L18.3 21 12 17.3 5.7 21l1.6-6.8L2 9.6 9 9z" />,
-  moon: () => <path d="M15 3a9 9 0 1 0 6 13A8 8 0 0 1 15 3" />,
-  moose: () => <path d="M3 5l2 3h3l1-3 1 3h4l1-3 1 3h3l2-3v4l-3 2h-3v2l3 2v7h-2v-5H8v5H6v-7l3-2v-2H6L3 9z" />,
-  barn: () => <path d="M2 11 12 3l10 8v10H2zm8 10v-6h4v6zm-4-9h3v2H6zm9 0h3v2h-3z" />,
-  canoe: () => <path d="M1 13h22c-2 4-6 5-11 5S3 17 1 13m10-10h2v8h-2zm-1 7h4l-2 3z" />,
-  geyser: () => <path d="M11 3h2l1 6c1-1 3-1 3 1s-2 3-4 3h-2c-2 0-4-1-4-3s2-2 3-1zM4 20c2-4 5-6 8-6s6 2 8 6z" />,
-  bison: () => <path d="M3 13c0-4 3-7 7-7 3 0 5 1 7 3l4 1-1 3-3 1v5h-2v-3H9v3H7v-4c-2 0-4-1-4-2" />,
-  spring: () => <g><circle cx="12" cy="12" r="10" opacity=".35" /><circle cx="12" cy="12" r="6" opacity=".6" /><circle cx="12" cy="12" r="3" /></g>,
-  bear: () => <path d="M5 8a2 2 0 1 1 3-2 8 8 0 0 1 8 0 2 2 0 1 1 3 2 7 7 0 0 1 1 4c0 5-4 9-8 9s-8-4-8-9a7 7 0 0 1 1-4m5 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2m4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-3 3h2l-1 1z" />,
+  canyon: () => <path d="M2 20h20M3 20V9l4-3v14M21 20V7l-4 2v11M10 20v-6h4v6" />,
+  sun: () => (
+    <g>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" />
+    </g>
+  ),
+  river: () => <path d="M3 8c3-2 6 2 9 0s6-2 9 0M3 13c3-2 6 2 9 0s6-2 9 0M3 18c3-2 6 2 9 0s6-2 9 0" />,
+  cactus: () => <path d="M12 21V5a2 2 0 0 1 4 0v16M8 21h12M16 12h2a2 2 0 0 0 2-2V8M12 14h-2a2 2 0 0 1-2-2V9" />,
+  hoodoo: () => <path d="M3 21h18M9 21l1-5-1-4 1-4-1-3h6l-1 3 1 4-1 4 1 5" />,
+  pine: () => <path d="M12 2 6 10h3l-4 6h14l-4-6h3zM12 16v6" />,
+  star: () => <path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6-4.5-4.2 6.1-.7z" />,
+  moon: () => <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5" />,
+  peaks: () => <path d="M2 20 8 9l3 5 4-9 7 15zM13 9.5l2-4.5 2 4.5" />,
+  moose: () => <path d="M4 5c0 3 2 4 4 4h8c2 0 4-1 4-4M8 9v3l-2 3v5M16 9v3l2 3v5M8 12h8M10 16h4" />,
+  barn: () => <path d="M3 21V10l9-6 9 6v11zM9 21v-6h6v6M3 10h18" />,
+  canoe: () => <path d="M2 14h20c-2 4-6 5-10 5S4 18 2 14M9 4l6 9M8 9h4" />,
+  geyser: () => <path d="M12 21v-9M9 14c-1-3 0-5 3-9 3 4 4 6 3 9M4 21h16" />,
+  bison: () => <path d="M3 14c0-4 3-7 8-7 3 0 5 1 6 3l4 1-1 3h-3v6M6 20v-4M10 20v-4h5M3 14c1 1 2 2 3 2" />,
+  spring: () => (
+    <g>
+      <ellipse cx="12" cy="12" rx="10" ry="6" />
+      <ellipse cx="12" cy="12" rx="6" ry="3.5" />
+      <ellipse cx="12" cy="12" rx="2" ry="1" />
+    </g>
+  ),
+  bear: () => <path d="M7 7a2 2 0 1 1 2-2M17 7a2 2 0 1 0-2-2M5 13a7 7 0 0 1 14 0v2a7 7 0 0 1-14 0zM10 12h.01M14 12h.01M11 16h2" />,
 };
 
 export default function Icon(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class={props.class}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class={props.class}
+    >
       {glyphs[props.name]?.()}
     </svg>
   );
