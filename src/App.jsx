@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { parks, legs } from "./data/parks";
 import RouteMap from "./components/RouteMap";
 import Board from "./components/Board";
+import Wall from "./components/Wall";
 import Photo from "./components/Photo";
 import Icon from "./components/Icon";
 
@@ -64,6 +65,30 @@ export default function App() {
 
       if (reduce) return;
 
+      // Wall: decor floats at different speeds; prints get slapped on.
+      gsap.utils.toArray(".wall").forEach((el) => {
+        gsap.utils.toArray(".deco", el).forEach((d) =>
+          gsap.fromTo(d, { y: 0 }, {
+            y: () => -window.innerHeight * 0.9 * Number(d.dataset.speed),
+            ease: "none",
+            scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true, invalidateOnRefresh: true },
+          })
+        );
+      });
+      gsap.set(".snap", { opacity: 0, scale: 1.18, rotation: 0 });
+      ScrollTrigger.batch(".snap", {
+        start: "top 90%",
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            opacity: 1,
+            scale: 1,
+            rotation: (_, el) => parseFloat(el.style.getPropertyValue("--tilt")) || 0,
+            duration: 0.55,
+            ease: "power3.out",
+            stagger: 0.09,
+          }),
+      });
+
       gsap.utils.toArray(".reveal").forEach((el) =>
         gsap.from(el, { y: 32, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } })
       );
@@ -121,7 +146,7 @@ export default function App() {
         </nav>
       </header>
 
-      <aside class="rail" classList={{ away: driving() || active() < 0 }} aria-label="Route">
+      <aside class="rail" classList={{ away: driving() || active() < 0 || parks[active()]?.layout === "wall" }} aria-label="Route">
         <p class="rail-label">The Route</p>
         <RouteMap progress={progress()} active={active()} onSelect={goTo} />
         <ol class="rail-list">
@@ -169,7 +194,12 @@ export default function App() {
         <For each={parks}>
           {(p, i) => (
             <>
-              <Board park={p} index={i()} onOpen={(photo, park) => setLightbox({ photo, park })} />
+              <Show
+                when={p.layout === "wall"}
+                fallback={<Board park={p} index={i()} onOpen={(photo, park) => setLightbox({ photo, park })} />}
+              >
+                <Wall park={p} index={i()} onOpen={(photo, park) => setLightbox({ photo, park })} />
+              </Show>
               <Show when={i() < parks.length - 1}>
                 <section class="drive" data-index={i()}>
                   <div class="drive-sticky">

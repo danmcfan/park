@@ -12,6 +12,25 @@ export const parks = [
     state: "Utah",
     dates: "Days 1–3",
     map: { x: 40, y: 272 },
+    // "wall" = fridge/bulletin layout: backdrop photo, black strip of prints,
+    // floating decor in the side gutters. Swap backdrop for a real photo later.
+    layout: "wall",
+    backdrop: "/media/zion/backdrop.svg",
+    // top: % down the section; side: left/right gutter; speed: parallax factor.
+    decor: [
+      { type: "badge", side: "left", top: 4, speed: 0.6, title: "Zion", sub: "National Park · Utah" },
+      { type: "note", side: "right", top: 7, speed: 0.35, text: "Shuttle at 6am or you're not getting on it." },
+      { type: "magnet", side: "left", top: 20, speed: 0.9, icon: "canyon" },
+      { type: "sticker", side: "right", top: 24, speed: 0.7, icon: "sun", text: "Angels Landing" },
+      { type: "ticket", side: "left", top: 34, speed: 0.45, text: "Zion Canyon Shuttle", sub: "Stop 9 · Temple of Sinawava" },
+      { type: "magnet", side: "right", top: 41, speed: 1, icon: "river" },
+      { type: "note", side: "left", top: 50, speed: 0.55, text: "Narrows: 4 hrs, cold feet, zero regrets.", color: "#ffd1dc" },
+      { type: "badge", side: "right", top: 56, speed: 0.4, title: "Est. 1919", sub: "Virgin River" },
+      { type: "magnet", side: "left", top: 66, speed: 0.8, icon: "cactus" },
+      { type: "sticker", side: "right", top: 72, speed: 0.6, icon: "canyon", text: "The Narrows" },
+      { type: "note", side: "right", top: 84, speed: 0.5, text: "Bighorn sheep on the east side!", color: "#c9ecd8" },
+      { type: "magnet", side: "left", top: 86, speed: 0.95, icon: "sun" },
+    ],
     theme: {
       accent: "#a8472a", // Navajo sandstone
       deep: "#5a2417",
@@ -38,6 +57,9 @@ export const parks = [
       slot("wide", "Emerald Pools trail"),
       slot("tall", "Weeping Rock"),
       slot("square", "Bighorn on the east side"),
+      slot("square", "Riverside Walk"),
+      slot("wide", "The Watchman from the bridge"),
+      slot("tall", "Observation Point"),
     ],
   },
   {

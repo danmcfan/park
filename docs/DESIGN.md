@@ -1,5 +1,17 @@
 # Design Concept
 
+## Experiment (branch `fridge-wall`) — "wall" layout, Zion only
+Set `layout: "wall"` on a park to use `src/components/Wall.jsx` instead of `Board`:
+- Iconic backdrop photo pinned (sticky) behind the whole section (`backdrop` field; Zion
+  currently uses an illustrated SVG stand-in at `public/media/zion/backdrop.svg`).
+- Big park title over the backdrop, then a black strip down the center with photos stuck
+  straight on it as instant-film prints (white border → thin black border → photo, marker
+  caption), slightly tilted and overlapping. 3 per row desktop, 2 on mobile.
+- Side gutters hold floating decor (`decor` array: badge patches, post-its, enamel magnets,
+  pill stickers, a shuttle ticket) that parallax at different speeds (`speed`). On mobile
+  decor hugs/overlaps the strip edges, scaled down; tickets/stickers hidden.
+- Route rail hides while a wall section is active.
+
 ## Direction (v2 — NPS-inspired)
 The look borrows from National Park Service print and web design so it reads as
 considered rather than generated:
