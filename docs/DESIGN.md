@@ -39,16 +39,20 @@ recolorable. Avoid official NPS logos/trademarks.
 - Hover/tap: photo lifts (scale + stronger shadow); click opens lightbox.
 - Respect `prefers-reduced-motion` (fade only).
 
-## Tech approach (proposed)
-- Vanilla HTML/CSS/JS; GSAP + ScrollTrigger from CDN for scroll choreography
-  (or native CSS scroll-driven animations with a fallback).
+## Route map as navigation
+Sticky sidebar map (left) while inside a park, with the current stop highlighted and a
+van marker. Between parks a tall "drive" section pins a large centered map and the van
+drives along the route as you scroll. Stops are clickable → smooth-scroll to that park.
+
+## Tech approach (implemented)
+- Bun + Vite + SolidJS; GSAP ScrollTrigger for scroll choreography.
 - Lazy-load images (`loading="lazy"`, `srcset`), videos with `preload="none"`
   and poster images; play/pause via IntersectionObserver.
 - Board textures: CSS/SVG noise for cork, or small tiling JPG.
 - Mobile: single column of pinned photos, lighter animation.
 
 ## Next steps
-1. Answer open questions in `PROJECT_SCOPE.md`.
-2. Build a static mockup with placeholder images for one park (Zion).
-3. Set up media processing script + Drive handoff.
-4. Roll out remaining parks; enable Pages.
+1. ~~Placeholder mockup of all four boards + route nav~~ (done).
+2. Media processing script + Google Drive handoff; swap placeholders for real photos.
+3. Styling polish (hand-drawn map art, better magnets, real park-specific stickers).
+4. Videos.

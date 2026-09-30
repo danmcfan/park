@@ -6,14 +6,14 @@ road trip through four national parks, one "board" per park.
 
 Parks (trip order): Zion, Bryce Canyon, Grand Teton, Yellowstone.
 
-## Hosting: GitHub Pages
+## Hosting: GitHub Pages (decided)
 
-- **Private repo + Pages requires a paid plan** (GitHub Pro, Team, or Enterprise).
-  On GitHub Free, Pages only works on public repos.
-- **The published site is public regardless of repo visibility** (only
-  Enterprise Cloud offers access-controlled Pages). Anyone with the URL can see
-  the photos. Decide if that's acceptable.
-- Limits to design around:
+- Repo is **public**; site served at **https://park.dannyobrien.dev**.
+- Built by GitHub Actions (`bun run build` → `dist/`) and deployed with
+  `actions/deploy-pages`. Repo Settings → Pages → Source must be "GitHub Actions".
+- DNS: `CNAME park → danmcfan.github.io` at the `dannyobrien.dev` registrar;
+  `public/CNAME` contains `park.dannyobrien.dev`. Enable "Enforce HTTPS" once the cert issues.
+- Limits to design around (these apply to the *built site*, not repo history):
   - Published site: ≤ 1 GB
   - Soft bandwidth: ~100 GB/month
   - Per-file hard limit: 100 MB (warning at 50 MB)
@@ -48,12 +48,15 @@ ImageMagick/`cwebp` + `ffmpeg`) produces web-ready files:
 - Budget: ~40–60 photos + ~5 clips per park keeps total well under 500 MB.
 - Long/full-quality videos: host on YouTube (unlisted) and embed instead.
 
+## Decisions so far
+- ~50 photos per park; captions on some photos, a journal note per park.
+- Route map is the table of contents: sidebar on desktop (top chip bar on mobile),
+  full-screen between parks. Clicking a park scrolls to it.
+- Placeholders first; real photos next; videos last.
+
 ## Out of scope (for now)
 Backend, comments, auth, CMS, maps with live data.
 
-## Open questions for the user
-- OK with the site being publicly viewable? Paid plan available for private repo?
-- Custom domain?
-- Roughly how many photos/videos per park, and who curates the selection?
-- Captions/journal text per park, or photos only?
-- Should the trip route (map between parks) be a section?
+## Open questions
+- Real trip dates, total mileage, and caption/journal text.
+- Which ~50 photos per park (user curates, uploads to Drive).
