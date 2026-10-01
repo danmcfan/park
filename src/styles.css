@@ -10,8 +10,6 @@
   --sans: "Source Sans 3", system-ui, sans-serif;
   --serif: "Source Serif 4", Georgia, serif;
   --gutter: clamp(16px, 4vw, 56px);
-  --gap: 8px;
-  --row: clamp(140px, 22vw, 320px);
   color-scheme: light dark;
 }
 
@@ -58,31 +56,16 @@ main {
 .park-title p { margin: 0; color: var(--ink-2); font-weight: 600; }
 
 /* ---------- Gallery ---------- */
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: var(--row);
-  grid-auto-flow: dense;
-  gap: var(--gap);
-}
-.tile { margin: 0; overflow: hidden; background: var(--placeholder); }
-.tile-wide { grid-column: span 2; }
-.tile-tall { grid-row: span 2; }
-/* Tiles the gallery resizes so the grid packs with no empty cells. */
-.widen-3 { grid-column: span 2; }
-.shorten-3 { grid-row: auto; }
+/* Rows are chosen in Gallery.tsx; each tile's flex-grow and aspect-ratio
+   are its true aspect, so a row's tiles share one height and fill the width. */
+.gallery { display: flex; flex-direction: column; gap: var(--gap); }
+.gallery-row { display: flex; gap: var(--gap); }
+.tile { position: relative; margin: 0; min-width: 0; overflow: hidden; background: var(--placeholder); }
 
-.media { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Absolutely positioned so the media's own pixel size never affects the tile. */
+.media { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
 .media-placeholder { display: grid; place-items: center; color: var(--ink-2); }
 .media-placeholder svg {
   width: 28px; height: 28px; opacity: .45;
   fill: none; stroke: currentColor; stroke-width: 1.5;
-}
-
-@media (max-width: 640px) {
-  .gallery { grid-template-columns: repeat(2, 1fr); --row: 42vw; }
-  .widen-3 { grid-column: auto; }
-  .tile-tall.shorten-3 { grid-row: span 2; }
-  .widen-2 { grid-column: span 2; }
-  .tile-tall.shorten-2 { grid-row: auto; }
 }

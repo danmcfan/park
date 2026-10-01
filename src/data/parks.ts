@@ -1,20 +1,30 @@
-// All site content lives here. Photos are placeholders until real media is
-// processed into public/media/<slug>/ — set `src` (and `type: "video"` for
-// clips) on a photo to swap it in.
+// All site content lives here. Media without `src` renders as a placeholder.
+// Real media lives in public/media/<slug>/: WebP photos (~1600px long edge)
+// and short 720p MP4 clips, with all metadata (including GPS) stripped.
 
 import type { IconName } from "../components/Icon";
 
-// `shape` drives the board layout: "wide" (3:2), "tall" (4:5) or "square".
-export type PhotoShape = "wide" | "tall" | "square";
+// Everything is shot on an iPhone 17 Pro, so aspect ratios are fixed:
+// photos are 4:3 and videos are 16:9, either way up.
+export type Orientation = "landscape" | "portrait";
+export type MediaType = "image" | "video";
 
 export interface PhotoSlot {
-  shape: PhotoShape;
+  type: MediaType;
+  orientation: Orientation;
   caption?: string;
   src?: string;
-  // Defaults to "image". Videos autoplay muted on loop, like a moving photo.
-  type?: "image" | "video";
+  // Videos only: still frame shown before playback starts.
   poster?: string;
 }
+
+const LANDSCAPE_ASPECT: Record<MediaType, number> = { image: 4 / 3, video: 16 / 9 };
+
+// Width / height of an item as displayed.
+export const aspectOf = (item: PhotoSlot) => {
+  const a = LANDSCAPE_ASPECT[item.type];
+  return item.orientation === "landscape" ? a : 1 / a;
+};
 
 export interface Park {
   slug: string;
@@ -35,8 +45,20 @@ export interface Leg {
   time: string;
 }
 
-// Photo slot helper.
-const slot = (shape: PhotoShape, caption?: string, src?: string): PhotoSlot => ({ shape, caption, src });
+// Media helpers. `src` paths are relative to public/.
+const photo = (orientation: Orientation, caption?: string, src?: string): PhotoSlot => ({
+  type: "image",
+  orientation,
+  caption,
+  src,
+});
+const video = (orientation: Orientation, caption: string, src: string, poster: string): PhotoSlot => ({
+  type: "video",
+  orientation,
+  caption,
+  src,
+  poster,
+});
 
 export const parks: Park[] = [
   {
@@ -52,7 +74,7 @@ export const parks: Park[] = [
       board: "#7a3a26",
     },
     icons: ["canyon", "sun", "river", "cactus"],
-    hero: slot("wide", "The Virgin River below the Watchman at sunset"),
+    hero: photo("landscape", "The Virgin River below the Watchman at sunset"),
     journal:
       "Red walls that go straight up. We started early to beat the shuttle crowds, waded the Narrows until our feet went numb, and watched the Watchman light up from the bridge every evening.",
     facts: [
@@ -62,15 +84,15 @@ export const parks: Park[] = [
       { label: "Wildlife", value: "Bighorn sheep" },
     ],
     photos: [
-      slot("wide", "First look down the main canyon"),
-      slot("tall", "Angels Landing chains"),
-      slot("square", "Shuttle stop at Big Bend"),
-      slot("tall", "The Narrows — cold, worth it"),
-      slot("wide", "Canyon Overlook at sunrise"),
-      slot("square", "Checkerboard Mesa"),
-      slot("wide", "Emerald Pools trail"),
-      slot("tall", "Weeping Rock"),
-      slot("square", "Bighorn on the east side"),
+      photo("landscape", "First look down the main canyon"),
+      photo("portrait", "Angels Landing chains"),
+      photo("landscape", "Shuttle stop at Big Bend"),
+      photo("portrait", "The Narrows — cold, worth it"),
+      photo("landscape", "Canyon Overlook at sunrise"),
+      photo("landscape", "Checkerboard Mesa"),
+      photo("landscape", "Emerald Pools trail"),
+      photo("portrait", "Weeping Rock"),
+      photo("landscape", "Bighorn on the east side"),
     ],
   },
   {
@@ -81,7 +103,7 @@ export const parks: Park[] = [
     map: { x: 96, y: 238 },
     theme: { accent: "#c8642f", deep: "#5c2c12", soft: "#f3d6bf", board: "#8a4a26" },
     icons: ["hoodoo", "pine", "star", "moon"],
-    hero: slot("wide", "Sunrise over the Bryce Amphitheater"),
+    hero: photo("landscape", "Sunrise over the Bryce Amphitheater"),
     journal:
       "Hoodoos everywhere, and the darkest sky we've ever seen. Sunrise at Sunset Point (yes, really).",
     facts: [
@@ -91,12 +113,12 @@ export const parks: Park[] = [
       { label: "Night sky", value: "Milky Way" },
     ],
     photos: [
-      slot("wide", "Sunrise over the amphitheater"),
-      slot("tall", "Thor's Hammer"),
-      slot("square", "Wall Street switchbacks"),
-      slot("wide", "Milky Way from the rim"),
-      slot("tall", "Queens Garden"),
-      slot("square", "Natural Bridge"),
+      photo("landscape", "Sunrise over the amphitheater"),
+      photo("portrait", "Thor's Hammer"),
+      photo("landscape", "Wall Street switchbacks"),
+      photo("landscape", "Milky Way from the rim"),
+      photo("portrait", "Queens Garden"),
+      photo("landscape", "Natural Bridge"),
     ],
   },
   {
@@ -107,7 +129,7 @@ export const parks: Park[] = [
     map: { x: 158, y: 74 },
     theme: { accent: "#3f6b86", deep: "#15293a", soft: "#cfdde6", board: "#2d4a5e" },
     icons: ["peaks", "moose", "barn", "canoe"],
-    hero: slot("wide", "The Cathedral Group from Teton Point"),
+    hero: photo("landscape", "The Cathedral Group from Teton Point"),
     journal:
       "The mountains just appear out of nowhere. Mormon Row at dawn and a moose that did not care about us at all.",
     facts: [
@@ -117,12 +139,12 @@ export const parks: Park[] = [
       { label: "Wildlife", value: "Moose" },
     ],
     photos: [
-      slot("wide", "Mormon Row barn"),
-      slot("tall", "Jenny Lake by canoe"),
-      slot("square", "Moose!"),
-      slot("wide", "Oxbow Bend"),
-      slot("tall", "Cascade Canyon"),
-      slot("square", "Schwabacher Landing"),
+      photo("landscape", "Mormon Row barn"),
+      photo("portrait", "Jenny Lake by canoe"),
+      photo("landscape", "Moose!"),
+      photo("landscape", "Oxbow Bend"),
+      photo("portrait", "Cascade Canyon"),
+      photo("landscape", "Schwabacher Landing"),
     ],
   },
   {
@@ -133,7 +155,7 @@ export const parks: Park[] = [
     map: { x: 170, y: 44 },
     theme: { accent: "#2f7d78", deep: "#0f2e2c", soft: "#cfe6e2", board: "#255e5a" },
     icons: ["geyser", "bison", "spring", "bear"],
-    hero: slot("wide", "Grand Prismatic Spring from the overlook"),
+    hero: photo("landscape", "Grand Prismatic Spring from the overlook"),
     journal: "Steam, sulfur, and bison traffic jams. Old Faithful was right on time.",
     facts: [
       { label: "Nights", value: "4" },
@@ -142,12 +164,15 @@ export const parks: Park[] = [
       { label: "Wildlife", value: "Bison" },
     ],
     photos: [
-      slot("wide", "Grand Prismatic from above"),
-      slot("tall", "Old Faithful, on schedule"),
-      slot("square", "Bison jam in Lamar Valley"),
-      slot("wide", "Lower Falls"),
-      slot("tall", "Morning Glory Pool"),
-      slot("square", "Mammoth terraces"),
+      photo("portrait", "Liberty Cap at Mammoth Hot Springs", "/media/yellowstone/img-0845.webp"),
+      video("landscape", "Elk on the lawns at Mammoth", "/media/yellowstone/img-0842.mp4", "/media/yellowstone/img-0842-poster.webp"),
+      photo("landscape", "Up on the Mammoth terraces", "/media/yellowstone/img-0865.webp"),
+      video("portrait", "A raven keeping watch", "/media/yellowstone/img-0820.mp4", "/media/yellowstone/img-0820-poster.webp"),
+      photo("landscape", "Grand Prismatic from above"),
+      photo("portrait", "Old Faithful, on schedule"),
+      photo("landscape", "Bison jam in Lamar Valley"),
+      photo("landscape", "Lower Falls"),
+      photo("portrait", "Morning Glory Pool"),
     ],
   },
 ];

@@ -1,88 +1,82 @@
-import { For } from "solid-js";
-import type { PhotoSlot } from "../data/parks";
+import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { aspectOf, type PhotoSlot } from "../data/parks";
 import Media from "./Media";
 
-type Fix = "widen" | "shorten";
-type Span = { w: number; h: number };
+const GAP = 8;
 
-const spanOf = (item: PhotoSlot, fix?: Fix): Span => {
-  if (fix === "widen") return { w: 2, h: 1 };
-  if (fix === "shorten") return { w: 1, h: 1 };
-  return { w: item.shape === "wide" ? 2 : 1, h: item.shape === "tall" ? 2 : 1 };
-};
+// Target row height by container width; actual rows land near it.
+const targetRowHeight = (width: number) => (width < 640 ? 220 : 320);
 
-// Empty cells left by CSS `grid-auto-flow: dense` packing at `cols` columns.
-function holes(spans: Span[], cols: number): number {
-  const taken: boolean[][] = [];
-  const free = (r: number, c: number, s: Span) => {
-    for (let y = r; y < r + s.h; y++)
-      for (let x = c; x < c + s.w; x++) if (taken[y]?.[x]) return false;
-    return true;
-  };
-  let used = 0;
-  for (const s of spans) {
-    const w = Math.min(s.w, cols);
-    placing: for (let r = 0; ; r++)
-      for (let c = 0; c + w <= cols; c++)
-        if (free(r, c, { w, h: s.h })) {
-          for (let y = r; y < r + s.h; y++)
-            for (let x = c; x < c + w; x++) (taken[y] ??= [])[x] = true;
-          used += w * s.h;
-          break placing;
-        }
-  }
-  return taken.length * cols - used;
+// Split `aspects` into `k` contiguous rows whose total aspect ratios are as
+// even as possible (linear partition), so every row comes out a similar height.
+function partition(aspects: number[], k: number): number[][] {
+  const n = aspects.length;
+  if (k >= n) return aspects.map((_, i) => [i]);
+  const prefix = [0];
+  for (const a of aspects) prefix.push(prefix[prefix.length - 1] + a);
+  const ideal = prefix[n] / k;
+  const cost = (i: number, j: number) => (prefix[j] - prefix[i] - ideal) ** 2;
+
+  // best[r][j]: lowest cost of putting the first j items in r rows.
+  const best = Array.from({ length: k + 1 }, () => new Array<number>(n + 1).fill(Infinity));
+  const cut = Array.from({ length: k + 1 }, () => new Array<number>(n + 1).fill(0));
+  best[0][0] = 0;
+  for (let r = 1; r <= k; r++)
+    for (let j = r; j <= n; j++)
+      for (let i = r - 1; i < j; i++) {
+        const c = best[r - 1][i] + cost(i, j);
+        if (c < best[r][j]) [best[r][j], cut[r][j]] = [c, i];
+      }
+
+  const rows: number[][] = [];
+  for (let r = k, j = n; r > 0; j = cut[r][j], r--)
+    rows.unshift(Array.from({ length: j - cut[r][j] }, (_, x) => cut[r][j] + x));
+  return rows;
 }
 
-// Greedily widen squares or shorten talls, preferring items near the end,
-// until the grid packs with no empty cells at `cols` columns.
-function fixesFor(items: PhotoSlot[], cols: number): Map<number, Fix> {
-  const fixes = new Map<number, Fix>();
-  const score = () => holes(items.map((item, i) => spanOf(item, fixes.get(i))), cols);
-  let best = score();
-  while (best > 0) {
-    let pick: [number, Fix] | undefined;
-    for (let i = items.length - 1; i >= 0; i--) {
-      if (fixes.has(i) || items[i].shape === "wide") continue;
-      const fix: Fix = items[i].shape === "square" ? "widen" : "shorten";
-      fixes.set(i, fix);
-      const n = score();
-      fixes.delete(i);
-      if (n < best) [best, pick] = [n, [i, fix]];
-    }
-    if (!pick) break;
-    fixes.set(...pick);
-  }
-  return fixes;
-}
-
-// Aligned collage: a uniform grid where "wide" items span two columns and
-// "tall" items span two rows. A few tiles are resized so every grid comes
-// out as a full rectangle at both the desktop (3) and phone (2) column counts.
+// Justified collage: items keep their true aspect ratio (no cropping) and
+// every row, including the last, spans the full width.
 export default function Gallery(props: { items: PhotoSlot[] }) {
-  const fix3 = () => fixesFor(props.items, 3);
-  const fix2 = () => fixesFor(props.items, 2);
+  let el!: HTMLDivElement;
+  const [width, setWidth] = createSignal(0);
+
+  onMount(() => {
+    setWidth(el.clientWidth);
+    const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+    ro.observe(el);
+    onCleanup(() => ro.disconnect());
+  });
+
+  const aspects = createMemo(() => props.items.map(aspectOf));
+  // Row count is its own memo so small width changes don't rebuild the rows
+  // (which would recreate tiles and restart videos); only a new count does.
+  const rowCount = createMemo(() => {
+    const w = width() || window.innerWidth;
+    const total = aspects().reduce((s, a) => s + a, 0);
+    return Math.max(1, Math.round((total * targetRowHeight(w)) / w));
+  });
+  const rows = createMemo(() => partition(aspects(), rowCount()));
 
   return (
-    <div class="gallery">
-      <For each={props.items}>
-        {(item, i) => {
-          const f3 = () => fix3().get(i());
-          const f2 = () => fix2().get(i());
-          return (
-            <figure
-              class={`tile tile-${item.shape}`}
-              classList={{
-                "widen-3": f3() === "widen",
-                "shorten-3": f3() === "shorten",
-                "widen-2": f2() === "widen",
-                "shorten-2": f2() === "shorten",
+    <div class="gallery" ref={el} style={{ "--gap": `${GAP}px` }}>
+      <For each={rows()}>
+        {(row) => (
+          <div class="gallery-row">
+            <For each={row}>
+              {(i) => {
+                const item = props.items[i];
+                const aspect = aspectOf(item);
+                // Grow is scaled up because flex-grow values summing to <1 leave
+                // free space unfilled (a lone portrait photo is only 0.75).
+                return (
+                  <figure class="tile" style={{ flex: `${aspect * 100} 1 0`, "aspect-ratio": `${aspect}` }}>
+                    <Media item={item} />
+                  </figure>
+                );
               }}
-            >
-              <Media item={item} />
-            </figure>
-          );
-        }}
+            </For>
+          </div>
+        )}
       </For>
     </div>
   );

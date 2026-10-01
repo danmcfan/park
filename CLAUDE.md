@@ -13,19 +13,25 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 - `public/CNAME` holds the custom domain — don't delete it.
 
 ## Layout
-- `src/data/parks.ts` — all content (park themes, journal, facts, photos/videos). Media is
-  placeholder until `src` is set; real media will live in `public/media/<slug>/`. Some fields
-  (`hero`, `journal`, `facts`, `icons`, `map`, `legs`) aren't rendered yet.
+- `src/data/parks.ts` — all content (park themes, journal, facts, photos/videos). Items use
+  `photo(orientation, caption, src)` / `video(orientation, caption, src, poster)`; aspect is
+  fixed by the iPhone 17 Pro (photos 4:3, videos 16:9, either orientation). Media without
+  `src` is a placeholder. Some fields (`hero`, `journal`, `facts`, `icons`, `map`, `legs`)
+  aren't rendered yet.
 - `src/App.tsx` — site title, then one `ParkSection` per park.
-- `src/components/` — `ParkSection` (title block + gallery), `Gallery` (aligned collage
-  grid; resizes a few tiles so every grid packs with no holes at 3 and 2 columns), `Media`
-  (image, muted looping video, or placeholder), `Icon` (line icons, currently unused).
+- `src/components/` — `ParkSection` (title block + gallery), `Gallery` (justified rows: items
+  keep their true aspect, rows balanced so every row incl. the last spans the full width),
+  `Media` (image, muted loop video that plays only while on screen, or placeholder), `Icon`
+  (line icons, currently unused).
 - `src/styles.css` — all styles; light and dark mode via `prefers-color-scheme`.
 - The design is intentionally minimal right now; components get styled up one at a time.
   `docs/DESIGN.md` describes the earlier NPS-inspired direction.
 
 ## Conventions
-- Only optimized media in the repo (WebP ~1600px, short 720p clips). Originals never committed.
+- Only optimized media in the repo, metadata (incl. GPS) always stripped. Originals never committed.
+  - Photos: `magick IN.JPG -auto-orient -resize '1600x1600>' -strip -quality 82 OUT.webp`
+  - Videos (rotation baked in, no audio, 30fps 720p) plus a poster frame:
+    `ffmpeg -i IN.MOV -map 0:v:0 -an -map_metadata -1 -vf "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)',fps=30" -c:v libx264 -preset slow -crf 26 -pix_fmt yuv420p -movflags +faststart OUT.mp4`
 - Respect `prefers-reduced-motion`.
 - Screenshot-check changes with Playwright (Chromium at /opt/pw-browsers) against `bun run preview`.
 - Sandbox network blocks nps.gov / Wikimedia; real photos must come via Drive or an allowed host.

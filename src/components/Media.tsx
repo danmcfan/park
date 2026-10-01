@@ -1,5 +1,38 @@
-import { Match, Switch } from "solid-js";
+import { Match, Switch, onCleanup, onMount } from "solid-js";
 import type { PhotoSlot } from "../data/parks";
+
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Muted loop that plays only while on screen, rather than trusting each
+// browser's autoplay rules. With reduced motion it waits for the user instead.
+function LoopVideo(props: { item: PhotoSlot }) {
+  let el!: HTMLVideoElement;
+
+  onMount(() => {
+    if (reducedMotion) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) el.play().catch(() => {});
+      else el.pause();
+    });
+    io.observe(el);
+    onCleanup(() => io.disconnect());
+  });
+
+  return (
+    <video
+      ref={el}
+      class="media"
+      src={props.item.src}
+      poster={props.item.poster}
+      aria-label={props.item.caption ?? ""}
+      controls={reducedMotion}
+      muted
+      loop
+      playsinline
+      preload={reducedMotion ? "none" : "metadata"}
+    />
+  );
+}
 
 // Renders an image, a muted looping video, or a tinted placeholder when no
 // `src` is set yet. Always fills its container; the gallery sets the size.
@@ -18,17 +51,7 @@ export default function Media(props: { item: PhotoSlot }) {
       }
     >
       <Match when={props.item.src && props.item.type === "video"}>
-        <video
-          class="media"
-          src={props.item.src}
-          poster={props.item.poster}
-          aria-label={label()}
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="metadata"
-        />
+        <LoopVideo item={props.item} />
       </Match>
       <Match when={props.item.src}>
         <img class="media" src={props.item.src} alt={label()} loading="lazy" decoding="async" />
