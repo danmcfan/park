@@ -7,7 +7,7 @@ const total = segLens.reduce((a, b) => a + b, 0);
 const pathD = pts.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y}`).join(" ");
 
 // progress: 0..parks.length-1; integer = at a park, fraction = driving between.
-function pointAt(progress) {
+function pointAt(progress: number) {
   const i = Math.min(Math.floor(progress), pts.length - 2);
   const t = Math.max(0, Math.min(1, progress - i));
   const a = pts[i], b = pts[i + 1];
@@ -15,7 +15,7 @@ function pointAt(progress) {
   return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, traveled };
 }
 
-export default function RouteMap(props) {
+export default function RouteMap(props: { progress?: number; active?: number; large?: boolean; onSelect?: (i: number) => void }) {
   const van = createMemo(() => pointAt(props.progress ?? 0));
 
   return (

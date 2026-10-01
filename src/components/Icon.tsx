@@ -1,4 +1,6 @@
 // Line icons for the enamel-pin magnets. 24x24, stroked with currentColor.
+import type { JSX } from "solid-js";
+
 const glyphs = {
   canyon: () => <path d="M2 20h20M3 20V9l4-3v14M21 20V7l-4 2v11M10 20v-6h4v6" />,
   sun: () => (
@@ -27,9 +29,11 @@ const glyphs = {
     </g>
   ),
   bear: () => <path d="M7 7a2 2 0 1 1 2-2M17 7a2 2 0 1 0-2-2M5 13a7 7 0 0 1 14 0v2a7 7 0 0 1-14 0zM10 12h.01M14 12h.01M11 16h2" />,
-};
+} satisfies Record<string, () => JSX.Element>;
 
-export default function Icon(props) {
+export type IconName = keyof typeof glyphs;
+
+export default function Icon(props: { name: IconName; class?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"

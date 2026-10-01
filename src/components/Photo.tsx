@@ -1,8 +1,9 @@
 import { Show } from "solid-js";
+import type { PhotoSlot } from "../data/parks";
 
 // Renders a real image when `photo.src` is set, otherwise a tinted
 // placeholder at the same aspect ratio so layout is final either way.
-export default function Photo(props) {
+export default function Photo(props: { photo: PhotoSlot; class?: string; eager?: boolean }) {
   return (
     <div class={`photo-frame shape-${props.photo.shape} ${props.class ?? ""}`}>
       <Show

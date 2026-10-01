@@ -1,7 +1,7 @@
 import { For, Show, createSignal, onMount, onCleanup } from "solid-js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { parks, legs } from "./data/parks";
+import { parks, legs, type Park, type PhotoSlot } from "./data/parks";
 import RouteMap from "./components/RouteMap";
 import Board from "./components/Board";
 import Photo from "./components/Photo";
@@ -13,14 +13,14 @@ export default function App() {
   const [progress, setProgress] = createSignal(0);
   const [active, setActive] = createSignal(-1);
   const [driving, setDriving] = createSignal(false);
-  const [lightbox, setLightbox] = createSignal(null);
+  const [lightbox, setLightbox] = createSignal<{ photo: PhotoSlot; park: Park } | null>(null);
 
-  const goTo = (i) => document.getElementById(parks[i].slug)?.scrollIntoView({ behavior: "smooth" });
+  const goTo = (i: number) => document.getElementById(parks[i].slug)?.scrollIntoView({ behavior: "smooth" });
 
   onMount(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ctx = gsap.context(() => {
-      gsap.utils.toArray(".park").forEach((el) => {
+      gsap.utils.toArray<HTMLElement>(".park").forEach((el) => {
         const i = Number(el.dataset.index);
         ScrollTrigger.create({
           trigger: el,
@@ -50,7 +50,7 @@ export default function App() {
         onToggle: (self) => self.isActive && setActive(-1),
       });
 
-      gsap.utils.toArray(".drive").forEach((el) => {
+      gsap.utils.toArray<HTMLElement>(".drive").forEach((el) => {
         const i = Number(el.dataset.index);
         ScrollTrigger.create({
           trigger: el,
@@ -64,7 +64,7 @@ export default function App() {
 
       if (reduce) return;
 
-      gsap.utils.toArray(".reveal").forEach((el) =>
+      gsap.utils.toArray<HTMLElement>(".reveal").forEach((el) =>
         gsap.from(el, { y: 32, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } })
       );
 
@@ -93,7 +93,7 @@ export default function App() {
       });
     });
 
-    const onKey = (e) => e.key === "Escape" && setLightbox(null);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setLightbox(null);
     window.addEventListener("keydown", onKey);
     onCleanup(() => {
       ctx.revert();

@@ -8,14 +8,14 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 
 ## Stack
 - **Bun only** — never npm/yarn/pnpm. `bun install`, `bun run dev`, `bun run build`.
-- Vite + SolidJS + GSAP (ScrollTrigger).
+- Vite + SolidJS + GSAP (ScrollTrigger), TypeScript (strict). `bun run typecheck`; `build` runs `tsc` first.
 - Deploys via `.github/workflows/deploy.yml` on push to `main` (builds `dist/`).
 - `public/CNAME` holds the custom domain — don't delete it.
 
 ## Layout
-- `src/data/parks.js` — all content (park themes, map coords, journal, photos). Photos are
+- `src/data/parks.ts` — all content (park themes, map coords, journal, photos). Photos are
   inline-SVG placeholders for now; real media will live in `public/media/<slug>/`.
-- `src/App.jsx` — page structure + all ScrollTrigger wiring (active park, route progress,
+- `src/App.tsx` — page structure + all ScrollTrigger wiring (active park, route progress,
   photo drop-in, parallax).
 - `src/components/` — `Board` (park section: black band, hero, journal/facts, felt photo board),
   `RouteMap` (brochure-style SVG route used in the rail and full-screen "drive" sections),

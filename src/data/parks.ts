@@ -1,11 +1,40 @@
 // All site content lives here. Photos are placeholders until real media is
 // processed into public/media/<slug>/ — set `src` on a photo to swap it in.
 
-// Photo slot helper. `shape` drives the board layout: "wide" (3:2),
-// "tall" (4:5) or "square".
-const slot = (shape, caption, src) => ({ shape, caption, src });
+import type { IconName } from "../components/Icon";
 
-export const parks = [
+// `shape` drives the board layout: "wide" (3:2), "tall" (4:5) or "square".
+export type PhotoShape = "wide" | "tall" | "square";
+
+export interface PhotoSlot {
+  shape: PhotoShape;
+  caption?: string;
+  src?: string;
+}
+
+export interface Park {
+  slug: string;
+  name: string;
+  state: string;
+  dates: string;
+  map: { x: number; y: number };
+  theme: { accent: string; deep: string; soft: string; board: string };
+  icons: IconName[];
+  hero: PhotoSlot;
+  journal: string;
+  facts: { label: string; value: string }[];
+  photos: PhotoSlot[];
+}
+
+export interface Leg {
+  miles: number;
+  time: string;
+}
+
+// Photo slot helper.
+const slot = (shape: PhotoShape, caption?: string, src?: string): PhotoSlot => ({ shape, caption, src });
+
+export const parks: Park[] = [
   {
     slug: "zion",
     name: "Zion",
@@ -120,7 +149,7 @@ export const parks = [
 ];
 
 // Driving legs between consecutive parks (approximate).
-export const legs = [
+export const legs: Leg[] = [
   { miles: 85, time: "1 hr 45 min" },
   { miles: 530, time: "8 hr" },
   { miles: 60, time: "1 hr 15 min" },

@@ -1,14 +1,15 @@
 import { For } from "solid-js";
 import Icon from "./Icon";
 import Photo from "./Photo";
+import type { Park, PhotoSlot } from "../data/parks";
 
 // Small deterministic tilt so prints look hand-placed but stay stable.
-const tilt = (i, seed) => {
+const tilt = (i: number, seed: number) => {
   const x = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
   return ((x - Math.floor(x)) - 0.5) * 3.2;
 };
 
-export default function Board(props) {
+export default function Board(props: { park: Park; index: number; onOpen: (photo: PhotoSlot, park: Park) => void }) {
   const p = props.park;
   return (
     <section
