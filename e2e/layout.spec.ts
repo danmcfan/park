@@ -1,5 +1,5 @@
 import { parks } from "../src/data/parks";
-import { expect, test } from "./fixtures";
+import { expect, isPhone, test } from "./fixtures";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -83,6 +83,10 @@ test("each title shows the park's state as a pinned cork board, with no dates", 
     const map = title.locator(".state-map");
     await expect(map).toHaveAttribute("aria-label", `${p.name} on a map of ${p.state}`);
     await expect(map.locator(".state-name")).toHaveText(p.state);
+    // Let the pin drop in and settle before measuring it.
+    await map.scrollIntoViewIfNeeded();
+    await expect(map).toHaveClass(/pinned/);
+    await map.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
     // The pin's center lands inside the outline.
     const shape = (await map.locator(".state-shape").boundingBox())!;
     const pin = (await map.locator(".state-pin").boundingBox())!;
@@ -100,4 +104,36 @@ test("each title shows the park's state as a pinned cork board, with no dates", 
     expect(head.x + head.width / 2).toBeLessThan(tip.x);
     expect(head.y + head.height / 2).toBeLessThan(tip.y - 8);
   }
+});
+
+test("a park's pin drops in only once its map is seen", async ({ page }) => {
+  const map = page.locator("#yellowstone .state-map");
+  await expect(map).not.toHaveClass(/pinned/);
+  expect(await map.locator(".pin-body").evaluate((el) => getComputedStyle(el).opacity)).toBe("0");
+  await map.scrollIntoViewIfNeeded();
+  await expect(map).toHaveClass(/pinned/);
+  await expect.poll(() => map.locator(".pin-body").evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+});
+
+test("hovering a map tilts the board", async ({ page }) => {
+  test.skip(isPhone(page), "no hover on touch screens");
+  const map = page.locator("#zion .state-map");
+  expect(await map.evaluate((el) => getComputedStyle(el).transform)).toBe("none");
+  await map.hover();
+  await expect.poll(() => map.evaluate((el) => getComputedStyle(el).transform)).toMatch(/^matrix3d/);
+});
+
+test.describe("with reduced motion", () => {
+  test.use({ contextOptions: { reducedMotion: "reduce" } });
+
+  test("pins are already in and boards don't tilt", async ({ page }) => {
+    const map = page.locator("#yellowstone .state-map");
+    expect(await map.locator(".pin-body").evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+    await map.scrollIntoViewIfNeeded();
+    expect(await map.evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
+    if (!isPhone(page)) {
+      await map.hover();
+      expect(await map.evaluate((el) => getComputedStyle(el).transform)).toBe("none");
+    }
+  });
 });
