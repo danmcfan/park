@@ -68,3 +68,21 @@ test("prints are taped down with a small tilt", async ({ page }) => {
 test("captions are not shown on the board", async ({ page }) => {
   await expect(page.locator(".gallery figcaption")).toHaveCount(0);
 });
+
+test("each title shows the park's state as a pinned outline, with no dates", async ({ page }) => {
+  for (const p of parks) {
+    const title = page.locator(`#${p.slug} .park-title`);
+    await expect(title).not.toContainText("Day");
+    const map = title.locator(".state-map");
+    await expect(map).toHaveAttribute("aria-label", `${p.name} on a map of ${p.state}`);
+    await expect(map.locator(".state-name")).toHaveText(p.state);
+    // The pin's center lands inside the outline.
+    const shape = (await map.locator(".state-shape").boundingBox())!;
+    const pin = (await map.locator(".state-pin").boundingBox())!;
+    const tip = { x: pin.x + pin.width / 2, y: pin.y + pin.height / 2 };
+    expect(tip.x).toBeGreaterThan(shape.x);
+    expect(tip.x).toBeLessThan(shape.x + shape.width);
+    expect(tip.y).toBeGreaterThan(shape.y);
+    expect(tip.y).toBeLessThan(shape.y + shape.height);
+  }
+});

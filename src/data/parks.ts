@@ -30,8 +30,8 @@ export interface Park {
   slug: string;
   name: string;
   state: string;
-  dates: string;
-  map: { x: number; y: number };
+  // Where the park's pin goes on the state outline.
+  location: { lat: number; lon: number };
   theme: { accent: string; deep: string; soft: string; board: string };
   icons: IconName[];
   hero: PhotoSlot;
@@ -65,8 +65,7 @@ export const parks: Park[] = [
     slug: "zion",
     name: "Zion",
     state: "Utah",
-    dates: "Days 1–3",
-    map: { x: 40, y: 272 },
+    location: { lat: 37.3, lon: -113.03 },
     theme: {
       accent: "#a8472a", // Navajo sandstone
       deep: "#5a2417",
@@ -99,8 +98,7 @@ export const parks: Park[] = [
     slug: "bryce",
     name: "Bryce Canyon",
     state: "Utah",
-    dates: "Days 4–5",
-    map: { x: 96, y: 238 },
+    location: { lat: 37.57, lon: -112.18 },
     theme: { accent: "#c8642f", deep: "#5c2c12", soft: "#f3d6bf", board: "#8a4a26" },
     icons: ["hoodoo", "pine", "star", "moon"],
     hero: photo("landscape", "Sunrise over the Bryce Amphitheater"),
@@ -125,8 +123,7 @@ export const parks: Park[] = [
     slug: "grand-teton",
     name: "Grand Teton",
     state: "Wyoming",
-    dates: "Days 6–8",
-    map: { x: 158, y: 74 },
+    location: { lat: 43.79, lon: -110.68 },
     theme: { accent: "#3f6b86", deep: "#15293a", soft: "#cfdde6", board: "#2d4a5e" },
     icons: ["peaks", "moose", "barn", "canoe"],
     hero: photo("landscape", "The Cathedral Group from Teton Point"),
@@ -151,8 +148,7 @@ export const parks: Park[] = [
     slug: "yellowstone",
     name: "Yellowstone",
     state: "Wyoming",
-    dates: "Days 9–12",
-    map: { x: 170, y: 44 },
+    location: { lat: 44.6, lon: -110.55 },
     theme: { accent: "#2f7d78", deep: "#0f2e2c", soft: "#cfe6e2", board: "#255e5a" },
     icons: ["geyser", "bison", "spring", "bear"],
     hero: photo("landscape", "Grand Prismatic Spring from the overlook"),

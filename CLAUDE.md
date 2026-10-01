@@ -8,7 +8,8 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 
 ## Stack
 - **Bun only** — never npm/yarn/pnpm. `bun install`, `bun run dev`, `bun run build`.
-- Vite + SolidJS, TypeScript (strict), Lucide icons (`lucide-solid/icons/<name>`, one import per
+- Vite + SolidJS, TypeScript (strict), Fraunces (titles) + Work Sans (text) from Google
+  Fonts, Lucide icons (`lucide-solid/icons/<name>`, one import per
   icon). `bun run typecheck` checks app and tests; `build` runs it first.
 - Deploys via `.github/workflows/deploy.yml` on push to `main` (builds `dist/`).
 - `public/CNAME` holds the custom domain — don't delete it.
@@ -22,7 +23,9 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 - `src/App.tsx` — `ParkNav`, then one `ParkSection` per park (no site title; the page starts at Zion).
 - `src/lib/justify.ts` — gallery layout math (row partition, row count, print tilt/tape).
 - `src/components/` — `ParkNav` (embroidered badge links on a canvas sash: fixed left rail ≥900px,
-  sticky top bar below), `ThemeToggle` (day/night patch, top right), `ParkSection` (title block + gallery), `Gallery` (justified rows: items
+  sticky top bar below), `ThemeToggle` (day/night patch, top right), `ParkSection` (park name + `StateMap`, then the gallery), `StateMap` (stitched outline of the
+  park's state from `src/data/states.ts`, projected in `src/lib/geo.ts`, with a dot at the
+  park's `location` and the state's name inside), `Gallery` (justified rows: items
   keep their true aspect, rows balanced so every row incl. the last spans the full width),
   `Gallery` prints are white-bordered, taped, slightly tilted. `Media` (image, muted loop video
   that plays only while on screen, or placeholder),

@@ -4,8 +4,9 @@
    the tokens differ. <html data-theme> is set before first paint (index.html). */
 
 :root {
-  --sans: "Source Sans 3", system-ui, sans-serif;
-  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "Work Sans", system-ui, sans-serif;
+  /* Fraunces at its softest, with its slightly irregular ("wonky") letters. */
+  --serif: "Fraunces", Georgia, serif;
   --gutter: clamp(16px, 4vw, 56px);
   /* Park badge nav: left rail width on desktop, top bar height on phones. */
   --rail: 168px;
@@ -29,6 +30,7 @@
   --placeholder: #e7e1d4;
   --tape: rgb(250 246 232 / .62);
   --stitch-accent: var(--accent);
+  --map-fill: rgb(255 255 255 / .3);
   color-scheme: light;
 }
 
@@ -46,6 +48,7 @@
   --placeholder: #d6d0c3;
   --tape: rgb(236 228 204 / .38);
   --stitch-accent: color-mix(in srgb, var(--accent) 60%, #fff);
+  --map-fill: rgb(255 255 255 / .05);
   color-scheme: dark;
 }
 
@@ -168,14 +171,37 @@ main {
 /* ---------- Park ---------- */
 .park { padding-top: 64px; scroll-margin-top: var(--scroll-offset); }
 .park-title {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-  flex-wrap: wrap;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
   padding-bottom: 12px; margin-bottom: 28px;
   /* A dashed line in the park's color reads as a row of stitches. */
   border-bottom: 3px dashed var(--stitch-accent);
 }
 .park-title h2 { margin: 0; font: 700 clamp(1.75rem, 4vw, 2.5rem)/1.1 var(--serif); }
-.park-title p { margin: 0; color: var(--ink-2); font-weight: 600; }
+
+/* State outline: a stitched patch at true proportions with a pin on the park. */
+.state-map {
+  --map-unit: 20px;
+  position: relative; flex: none; margin: 0 4px 0 0;
+  width: calc(var(--w) * var(--map-unit)); aspect-ratio: var(--w) / var(--h);
+}
+.state-map svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.state-shape {
+  fill: var(--map-fill); stroke: var(--stitch-accent); stroke-width: 2.5;
+  stroke-dasharray: 6 4; stroke-linejoin: round;
+}
+.state-name {
+  fill: var(--ink-2); font: 700 13px var(--sans); letter-spacing: .12em;
+  text-transform: uppercase; text-anchor: middle; dominant-baseline: central;
+}
+.state-pin {
+  position: absolute; width: 11px; height: 11px; translate: -50% -50%;
+  border-radius: 50%; background: var(--accent); border: 2px solid var(--print);
+  box-shadow: 0 1px 2px var(--print-shadow);
+}
+@media (max-width: 899px) {
+  .state-map { --map-unit: 15px; }
+  .state-name { font-size: 15px; }
+}
 
 /* ---------- Gallery: taped prints ---------- */
 /* Rows are chosen in Gallery.tsx; each print's flex-grow and aspect-ratio
