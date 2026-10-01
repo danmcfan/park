@@ -10,6 +10,11 @@
   --sans: "Source Sans 3", system-ui, sans-serif;
   --serif: "Source Serif 4", Georgia, serif;
   --gutter: clamp(16px, 4vw, 56px);
+  /* Park badge nav: left rail width on desktop, top bar height on phones. */
+  --rail: 168px;
+  --bar: 84px;
+  /* How far below the viewport top a section lands when jumped to. */
+  --scroll-offset: 16px;
   color-scheme: light dark;
 }
 
@@ -31,21 +36,76 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
 main {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 var(--gutter) 96px;
+  /* The first park's own top padding adds to this for the space above Zion. */
+  padding: 32px var(--gutter) 96px;
 }
 
-.site-title { padding: 72px 0 24px; }
-.site-title h1 {
-  margin: 0;
-  font: 700 clamp(2.25rem, 6vw, 4rem)/1.05 var(--serif);
+/* ---------- Park badge nav ---------- */
+.park-nav {
+  position: fixed; inset: 0 auto 0 0; z-index: 10;
+  width: var(--rail);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(8px, 2.5dvh, 28px);
+  padding: 24px 0;
 }
-.site-title p { margin: 8px 0 0; color: var(--ink-2); }
+.park-nav-badge {
+  display: block;
+  border-radius: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+.park-nav-badge img {
+  display: block;
+  /* Four badges must fit short laptop screens too. */
+  height: min(132px, (100dvh - 48px - 3 * 28px) / 4);
+  width: auto;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / .18));
+}
+.park-nav-badge:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+
+/* Hover only where there's a real pointer; touch screens would leave the
+   tapped badge stuck enlarged. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .park-nav-badge img { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), filter .25s; }
+  .park-nav-badge:hover img,
+  .park-nav-badge:focus-visible img {
+    transform: rotate(-6deg) scale(1.12);
+    filter: drop-shadow(0 6px 10px rgb(0 0 0 / .25));
+  }
+  /* Alternate the tilt so the column doesn't all lean one way. */
+  .park-nav-badge:nth-child(even):hover img,
+  .park-nav-badge:nth-child(even):focus-visible img { transform: rotate(6deg) scale(1.12); }
+  .park-nav-badge:active img { transform: scale(.96); }
+}
+
+@media (min-width: 900px) {
+  body { padding-left: var(--rail); }
+}
+
+@media (max-width: 899px) {
+  .park-nav {
+    position: sticky; inset: 0 0 auto;
+    width: auto; height: var(--bar);
+    flex-direction: row; justify-content: space-evenly;
+    gap: 8px; padding: 8px var(--gutter);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+  .park-nav-badge img { height: calc(var(--bar) - 16px); }
+  :root { --scroll-offset: calc(var(--bar) - 32px); }
+  main { padding-top: 8px; }
+}
 
 /* ---------- Park ---------- */
-.park { padding-top: 64px; scroll-margin-top: 16px; }
+.park { padding-top: 64px; scroll-margin-top: var(--scroll-offset); }
 .park-title {
   display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
   flex-wrap: wrap;

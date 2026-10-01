@@ -3,3 +3,7 @@ raw/
 .DS_Store
 node_modules/
 dist/
+
+# Secrets
+.env
+.env.*
