@@ -15,17 +15,18 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 - `public/CNAME` holds the custom domain — don't delete it.
 
 ## Layout
-- `src/data/parks.ts` — all content (park themes, journal, facts, photos/videos). Items use
-  `photo(orientation, caption, src)` / `video(orientation, caption, src, poster)`; aspect is
+- `src/data/parks.ts` — all content (park themes, journal, facts, placeholder slots). Real media
+  is in `src/data/media.ts` (written by the curate tool's export); aspect is
   fixed by the iPhone 17 Pro (photos 4:3, videos 16:9, either orientation). Media without
-  `src` is a placeholder. Some fields (`hero`, `journal`, `facts`, `icons`, `map`, `legs`)
+  `src` is a placeholder. Some fields (`hero`, `journal`, `facts`, `icons`, `legs`)
   aren't rendered yet.
 - `src/App.tsx` — `ParkNav`, then one `ParkSection` per park (no site title; the page starts at Zion).
 - `src/lib/justify.ts` — gallery layout math (row partition, row count, print tilt/tape).
 - `src/components/` — `ParkNav` (embroidered badge links on a canvas sash: fixed left rail ≥900px,
-  sticky top bar below), `ThemeToggle` (day/night patch, top right), `ParkSection` (park name + `StateMap`, then the gallery), `StateMap` (stitched outline of the
-  park's state from `src/data/states.ts`, projected in `src/lib/geo.ts`, with a dot at the
-  park's `location` and the state's name inside), `Gallery` (justified rows: items
+  sticky top bar below), `ThemeToggle` (rust day/night patch, top right, contrasting with the sash), `ParkSection` (park name + `StateMap`, then the gallery), `StateMap` (the
+  park's state from `src/data/states.ts`, projected in `src/lib/geo.ts`, as a cork board with a
+  visible cut edge and cast shadow — SVG turbulence texture, no WebGL — with a CSS ball-head pin
+  at the park's `location` and the state's name inside), `Gallery` (justified rows: items
   keep their true aspect, rows balanced so every row incl. the last spans the full width),
   `Gallery` prints are white-bordered, taped, slightly tilted. `Media` (image, muted loop video
   that plays only while on screen, or placeholder),
@@ -54,6 +55,15 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
   `BASE_URL=https://park.dannyobrien.dev bun run test:e2e` runs the same suite against the live site.
 - `bun run test:all` runs both. Add or update tests with every change.
 - Sandbox network blocks nps.gov / Wikimedia; real photos must come via Drive or an allowed host.
+
+## Curate tool (temporary, local only)
+- `curate/` picks, captions and clips media from a raw dump and exports it for the site:
+  `bun run curate [dump]` (default `raw/dump/`), then open http://127.0.0.1:5199. Details and
+  removal steps in `curate/README.md`.
+- Export rewrites `public/media/<park>/` to exactly the included items and regenerates
+  `src/data/media.ts` (each park's real media, in capture order; parks without any show
+  placeholders from `parks.ts`). Choices live in `raw/curate.json`, caches in `raw/.curate-cache/`.
+- It's built to be deleted: nothing in `src/` imports it.
 
 ## Park badges
 - Generated with Replicate (`openai/gpt-image-2.5-sunburst`) by `bun scripts/badge.ts <slug> [count]`;

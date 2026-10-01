@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Curate</title>
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <strong>Curate</strong>
+      <span id="counts"></span>
+      <label>Show
+        <select id="f-include">
+          <option value="all">everything</option>
+          <option value="in">included</option>
+          <option value="out">not included</option>
+        </select>
+      </label>
+      <label>Park <select id="f-park"></select></label>
+      <label>Type
+        <select id="f-type">
+          <option value="all">all</option>
+          <option value="image">photos</option>
+          <option value="video">videos</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="f-live" /> Live Photo clips</label>
+      <span class="spacer"></span>
+      <button id="rescan">Rescan</button>
+      <button id="export" class="primary">Export to site</button>
+    </header>
+    <pre id="log" hidden></pre>
+    <main id="grid"></main>
+
+    <div id="viewer" hidden>
+      <div class="stage">
+        <div id="media"></div>
+        <div id="clipbar" hidden><div id="clip"></div><div id="poster-mark"></div><div id="playhead"></div></div>
+      </div>
+      <aside class="panel">
+        <div class="nav">
+          <button id="prev" title="Previous (←)">←</button>
+          <span id="v-name"></span>
+          <button id="next" title="Next (→)">→</button>
+          <button id="close" title="Close (Esc)">✕</button>
+        </div>
+        <label class="row"><input type="checkbox" id="v-include" /> Include on the site <kbd>X</kbd></label>
+        <label class="row">Park <select id="v-park"></select></label>
+        <label class="col">Caption <textarea id="v-caption" rows="3"></textarea></label>
+        <div id="v-video" class="col">
+          <div class="row">Start <input type="number" step="0.1" min="0" id="v-start" /> <button data-set="start">Now <kbd>I</kbd></button></div>
+          <div class="row">End <input type="number" step="0.1" min="0" id="v-end" /> <button data-set="end">Now <kbd>O</kbd></button></div>
+          <div class="row">Poster <input type="number" step="0.1" min="0" id="v-poster" /> <button data-set="poster">Now <kbd>P</kbd></button></div>
+          <div class="row"><button id="play-clip">Play clip <kbd>C</kbd></button> <button id="clear-clip">Whole video</button> <span id="v-length"></span></div>
+        </div>
+        <p id="v-meta" class="meta"></p>
+      </aside>
+    </div>
+    <script type="module" src="./app.ts"></script>
+  </body>
+</html>

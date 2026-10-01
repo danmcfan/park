@@ -1,8 +1,11 @@
 // All site content lives here. Media without `src` renders as a placeholder.
 // Real media lives in public/media/<slug>/: WebP photos (~1600px long edge)
-// and short 720p MP4 clips, with all metadata (including GPS) stripped.
+// and short 720p MP4 clips, with all metadata (including GPS) stripped. Which
+// ones show, and in what order, is in media.ts; until a park has real media
+// it shows the placeholder grid below.
 
 import type { IconName } from "../components/Icon";
+import { media } from "./media";
 
 // Everything is shot on an iPhone 17 Pro, so aspect ratios are fixed:
 // photos are 4:3 and videos are 16:9, either way up.
@@ -45,22 +48,10 @@ export interface Leg {
   time: string;
 }
 
-// Media helpers. `src` paths are relative to public/.
-const photo = (orientation: Orientation, caption?: string, src?: string): PhotoSlot => ({
-  type: "image",
-  orientation,
-  caption,
-  src,
-});
-const video = (orientation: Orientation, caption: string, src: string, poster: string): PhotoSlot => ({
-  type: "video",
-  orientation,
-  caption,
-  src,
-  poster,
-});
+// Placeholder slots, shown until a park has real media.
+const photo = (orientation: Orientation, caption?: string): PhotoSlot => ({ type: "image", orientation, caption });
 
-export const parks: Park[] = [
+const placeholders: Park[] = [
   {
     slug: "zion",
     name: "Zion",
@@ -160,10 +151,6 @@ export const parks: Park[] = [
       { label: "Wildlife", value: "Bison" },
     ],
     photos: [
-      photo("portrait", "Liberty Cap at Mammoth Hot Springs", "/media/yellowstone/img-0845.webp"),
-      video("landscape", "Elk on the lawns at Mammoth", "/media/yellowstone/img-0842.mp4", "/media/yellowstone/img-0842-poster.webp"),
-      photo("landscape", "Up on the Mammoth terraces", "/media/yellowstone/img-0865.webp"),
-      video("portrait", "A raven keeping watch", "/media/yellowstone/img-0820.mp4", "/media/yellowstone/img-0820-poster.webp"),
       photo("landscape", "Grand Prismatic from above"),
       photo("portrait", "Old Faithful, on schedule"),
       photo("landscape", "Bison jam in Lamar Valley"),
@@ -172,6 +159,8 @@ export const parks: Park[] = [
     ],
   },
 ];
+
+export const parks: Park[] = placeholders.map((p) => ({ ...p, photos: media[p.slug] ?? p.photos }));
 
 // Driving legs between consecutive parks (approximate).
 export const legs: Leg[] = [

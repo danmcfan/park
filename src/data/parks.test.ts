@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { media } from "./media";
 import { aspectOf, parks } from "./parks";
 
 const inPublic = (src: string) => existsSync(`public${src}`);
@@ -41,5 +42,19 @@ describe("aspectOf", () => {
     expect(aspectOf({ type: "image", orientation: "portrait" })).toBeCloseTo(3 / 4);
     expect(aspectOf({ type: "video", orientation: "landscape" })).toBeCloseTo(16 / 9);
     expect(aspectOf({ type: "video", orientation: "portrait" })).toBeCloseTo(9 / 16);
+  });
+});
+
+describe("media", () => {
+  it("only lists parks that exist, and only real media", () => {
+    const slugs = new Set(parks.map((p) => p.slug));
+    for (const [slug, items] of Object.entries(media)) {
+      expect(slugs.has(slug), slug).toBe(true);
+      for (const item of items) expect(item.src, slug).toBeTruthy();
+    }
+  });
+
+  it("is what each park shows", () => {
+    for (const p of parks) if (media[p.slug]) expect(p.photos).toBe(media[p.slug]);
   });
 });

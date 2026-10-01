@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "vite",
     "build": "bun run typecheck && vite build",
-    "typecheck": "tsc && tsc -p tsconfig.test.json",
+    "typecheck": "tsc && tsc -p tsconfig.test.json && tsc -p curate",
     "preview": "vite preview",
+    "curate": "bun curate/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.57.0",
+    "@types/bun": "^1.4.2",
     "@types/node": "^26.6.3",
     "typescript": "^7.0.2",
     "vite": "^7.0.0",
