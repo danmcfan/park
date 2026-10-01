@@ -30,7 +30,16 @@
   --placeholder: #e7e1d4;
   --tape: rgb(250 246 232 / .62);
   --stitch-accent: var(--accent);
-  --map-fill: rgb(255 255 255 / .3);
+  --patch: #a8472a;
+  --patch-thread: #f6eedb;
+  /* Cork board: face, cut edge, granules, the name printed on it. */
+  --cork: #c69c6d;
+  --cork-edge: #94693f;
+  --cork-dark: rgb(92 56 24 / .55);
+  --cork-light: rgb(240 214 170 / .5);
+  --cork-ink: rgb(66 38 14 / .78);
+  --board-shadow: rgb(60 40 14 / .45);
+  --steel: #7d858c;
   color-scheme: light;
 }
 
@@ -48,7 +57,15 @@
   --placeholder: #d6d0c3;
   --tape: rgb(236 228 204 / .38);
   --stitch-accent: color-mix(in srgb, var(--accent) 60%, #fff);
-  --map-fill: rgb(255 255 255 / .05);
+  --patch: #9a4429;
+  --patch-thread: #ecdcc0;
+  --cork: #8c6b48;
+  --cork-edge: #574027;
+  --cork-dark: rgb(46 26 10 / .6);
+  --cork-light: rgb(214 184 140 / .35);
+  --cork-ink: rgb(36 20 6 / .8);
+  --board-shadow: rgb(0 0 0 / .7);
+  --steel: #6a7177;
   color-scheme: dark;
 }
 
@@ -138,11 +155,18 @@ main {
   display: grid; place-items: center;
   width: 48px; height: 48px; padding: 0;
   border: 0; border-radius: 50%;
-  background: var(--weave), var(--sash);
-  color: var(--stitch);
-  box-shadow: inset 0 0 0 4px var(--sash), inset 0 0 0 6px var(--stitch), 0 2px 6px rgb(0 0 0 / .25);
+  /* Rust twill, not the sash's canvas: on phones it sits on the sash and
+     must not blend into it. */
+  background: var(--weave), var(--patch);
+  color: var(--patch-thread);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .18), 0 2px 6px rgb(0 0 0 / .3);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+/* Satin-stitched edge with a running stitch inside it, like the badges. */
+.theme-toggle::after {
+  content: ""; position: absolute; inset: 4px; border-radius: 50%;
+  border: 1.5px dashed var(--patch-thread); opacity: .85; pointer-events: none;
 }
 .theme-toggle svg { width: 24px; height: 24px; }
 .theme-toggle:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
@@ -166,6 +190,12 @@ main {
   .theme-toggle { top: calc((var(--bar) - 44px) / 2); right: var(--gutter); width: 44px; height: 44px; }
   :root { --scroll-offset: calc(var(--bar) - 32px); --gap: 14px; }
   main { padding-top: 8px; }
+  /* Just enough room under the sash for Zion's pin to stand clear of it. */
+  .park:first-child {
+    padding-top: 20px;
+    /* Jumping here still lands the title where the other parks' do. */
+    scroll-margin-top: calc(var(--scroll-offset) + 44px);
+  }
 }
 
 /* ---------- Park ---------- */
@@ -178,29 +208,114 @@ main {
 }
 .park-title h2 { margin: 0; font: 700 clamp(1.75rem, 4vw, 2.5rem)/1.1 var(--serif); }
 
-/* State outline: a stitched patch at true proportions with a pin on the park. */
+/* State outline: a cork board cut to the state's shape at true proportions,
+   standing proud of the page, with a ball-head map pin in the park. */
 .state-map {
   --map-unit: 20px;
-  position: relative; flex: none; margin: 0 4px 0 0;
+  position: relative; flex: none; margin: 0 4px 6px 0;
   width: calc(var(--w) * var(--map-unit)); aspect-ratio: var(--w) / var(--h);
 }
-.state-map svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.state-shape {
-  fill: var(--map-fill); stroke: var(--stitch-accent); stroke-width: 2.5;
-  stroke-dasharray: 6 4; stroke-linejoin: round;
+.state-map svg {
+  display: block; width: 100%; height: 100%; overflow: visible;
+  /* Contact shadow where the board meets the page, then a softer cast one. */
+  filter: drop-shadow(0 1px 1px var(--board-shadow)) drop-shadow(2px 7px 7px var(--board-shadow));
 }
+.state-shape { fill: var(--cork); }
+.cork-side { fill: var(--cork-edge); }
+.cork-sheen { stroke-width: 1.2; stroke-linejoin: round; }
+.cork-dark { flood-color: var(--cork-dark); }
+.cork-light { flood-color: var(--cork-light); }
 .state-name {
-  fill: var(--ink-2); font: 700 13px var(--sans); letter-spacing: .12em;
+  fill: var(--cork-ink); font: 700 13px var(--sans); letter-spacing: .12em;
   text-transform: uppercase; text-anchor: middle; dominant-baseline: central;
 }
+
+/* The pin: .state-pin is the hole, centered on the park. The steel needle
+   leans up and left out of it to a glossy ball in the park's color; light
+   from the top left throws their shadow down and right across the cork. */
 .state-pin {
-  position: absolute; width: 11px; height: 11px; translate: -50% -50%;
-  border-radius: 50%; background: var(--accent); border: 2px solid var(--print);
-  box-shadow: 0 1px 2px var(--print-shadow);
+  --len: 15px;
+  --lean: -14deg;
+  --ball: 13px;
+  position: absolute; z-index: 1; width: 3px; height: 3px; translate: -50% -50%;
+  border-radius: 50%; background: rgb(30 16 4 / .7);
 }
+.state-pin > span { position: absolute; left: 50%; top: 50%; }
+/* Needle and ball move as one, pivoting on the needle's tip. */
+.pin-body > span { position: absolute; left: 0; top: 0; }
+.pin-needle {
+  width: 1.5px; height: var(--len); margin-left: -.75px; translate: 0 -100%;
+  transform-origin: 50% 100%; rotate: var(--lean);
+  background: linear-gradient(90deg, var(--steel), #f4f6f7 45%, var(--steel));
+  border-radius: 1px 1px 0 0;
+}
+.pin-head {
+  width: var(--ball); height: var(--ball);
+  translate:
+    calc(sin(var(--lean)) * var(--len) - 50%)
+    calc(cos(var(--lean)) * var(--len) * -1 - 50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, rgb(255 255 255 / .95) 0 7%, rgb(255 255 255 / 0) 30%),
+    radial-gradient(circle at 40% 38%, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent) 45%, color-mix(in srgb, var(--accent) 45%, #000) 100%);
+  box-shadow: inset -1px -2px 3px rgb(0 0 0 / .25);
+}
+/* The needle's shadow runs from the hole to the ball's blurred shadow. */
+.pin-shadow {
+  width: 2px; height: 11px; margin-left: -1px; translate: 0 -100%;
+  transform-origin: 50% 100%; rotate: 30deg;
+  background: linear-gradient(rgb(20 10 0 / .25), rgb(20 10 0 / .45));
+  filter: blur(.6px);
+}
+.pin-shadow::after {
+  content: ""; position: absolute; left: 50%; top: 0; translate: -50% -50%;
+  width: calc(var(--ball) - 1px); height: calc(var(--ball) - 3px); border-radius: 50%;
+  background: rgb(20 10 0 / .32); filter: blur(1.5px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Until it's seen, the pin waits off the board; then it drops from above
+     the page, its shadow closing in as it nears the cork, pushes in, and
+     rocks once on its tip. */
+  .state-map:not(.pinned) .pin-body,
+  .state-map:not(.pinned) .pin-shadow { opacity: 0; }
+  .state-map:not(.pinned) .state-pin { background: transparent; }
+  .state-map.pinned .pin-body { animation: pin-drop .7s cubic-bezier(.5, 0, .75, .4) both; }
+  .state-map.pinned .pin-shadow { animation: pin-shadow-in .7s cubic-bezier(.5, 0, .75, .4) both; }
+  .state-map.pinned .state-pin { animation: pin-hole .7s step-end both; }
+  @keyframes pin-drop {
+    0% { opacity: 0; transform: translate(-16px, -48px) scale(1.6); }
+    20% { opacity: 1; }
+    62% { transform: none; animation-timing-function: ease-out; }
+    76% { transform: rotate(-7deg); animation-timing-function: ease-in-out; }
+    90% { transform: rotate(2deg); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes pin-shadow-in {
+    0% { opacity: 0; transform: scale(2.4); }
+    62% { opacity: 1; transform: none; }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes pin-hole {
+    0% { background: transparent; }
+    62% { background: rgb(30 16 4 / .7); }
+  }
+}
+
+/* With a real pointer, hovering lifts the board's top left corner off the
+   page toward the light; it settles back when the pointer leaves. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .state-map { transition: transform .4s cubic-bezier(.34, 1.56, .64, 1); }
+  .state-map svg { transition: filter .4s; }
+  .state-map:hover { transform: perspective(420px) rotateX(-12deg) rotateY(14deg) translateY(-3px); }
+  .state-map:hover svg {
+    filter: drop-shadow(0 2px 2px var(--board-shadow)) drop-shadow(5px 14px 12px var(--board-shadow));
+  }
+}
+
 @media (max-width: 899px) {
   .state-map { --map-unit: 15px; }
   .state-name { font-size: 15px; }
+  .state-pin { --len: 12px; --ball: 11px; }
 }
 
 /* ---------- Gallery: taped prints ---------- */

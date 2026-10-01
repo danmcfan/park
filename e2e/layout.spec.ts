@@ -10,9 +10,16 @@ test("starts at Zion with no site title and breathing room above it", async ({ p
   await expect(page.locator("main section").first()).toHaveAttribute("id", "zion");
   const title = await page.locator("#zion .park-title").boundingBox();
   const nav = await page.locator(".park-nav").boundingBox();
-  // On phones the title sits below the badge bar; either way, not at the edge.
-  const below = nav && nav.width > nav.height ? nav.y + nav.height : 0;
-  expect(title!.y - below).toBeGreaterThanOrEqual(48);
+  // On phones the title sits just below the badge bar: clear of it, but not
+  // a screenful of empty canvas. On desktop it gets more room from the top.
+  const phone = nav!.width > nav!.height;
+  const gap = title!.y - (phone ? nav!.y + nav!.height : 0);
+  if (phone) {
+    expect(gap).toBeGreaterThanOrEqual(16);
+    expect(gap).toBeLessThanOrEqual(40);
+  } else {
+    expect(gap).toBeGreaterThanOrEqual(48);
+  }
 });
 
 test("has a section per park in trip order", async ({ page }) => {
@@ -69,7 +76,7 @@ test("captions are not shown on the board", async ({ page }) => {
   await expect(page.locator(".gallery figcaption")).toHaveCount(0);
 });
 
-test("each title shows the park's state as a pinned outline, with no dates", async ({ page }) => {
+test("each title shows the park's state as a pinned cork board, with no dates", async ({ page }) => {
   for (const p of parks) {
     const title = page.locator(`#${p.slug} .park-title`);
     await expect(title).not.toContainText("Day");
@@ -84,5 +91,13 @@ test("each title shows the park's state as a pinned outline, with no dates", asy
     expect(tip.x).toBeLessThan(shape.x + shape.width);
     expect(tip.y).toBeGreaterThan(shape.y);
     expect(tip.y).toBeLessThan(shape.y + shape.height);
+    // The board has a cut edge showing beneath it.
+    const side = (await map.locator(".cork-side").boundingBox())!;
+    expect(side.y + side.height).toBeGreaterThan(shape.y + shape.height + 2);
+    // A ball-head pin leans up and to the left out of the hole.
+    const head = (await map.locator(".pin-head").boundingBox())!;
+    expect(head.width).toBeGreaterThanOrEqual(10);
+    expect(head.x + head.width / 2).toBeLessThan(tip.x);
+    expect(head.y + head.height / 2).toBeLessThan(tip.y - 8);
   }
 });

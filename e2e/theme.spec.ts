@@ -27,6 +27,18 @@ test("the toggle sits in the top right corner", async ({ page }) => {
   expect(box.width).toBeGreaterThanOrEqual(44);
 });
 
+test("the toggle stands out from the badge sash in both themes", async ({ page }) => {
+  await page.goto("/");
+  const rgb = (selector: string) =>
+    page.locator(selector).evaluate((el) => getComputedStyle(el).backgroundColor.match(/\d+/g)!.slice(0, 3).map(Number));
+  for (const t of ["day", "night"]) {
+    await page.evaluate((t) => (document.documentElement.dataset.theme = t), t);
+    const [a, b] = [await rgb(".theme-toggle"), await rgb(".park-nav")];
+    const distance = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    expect(distance, t).toBeGreaterThan(80);
+  }
+});
+
 test("switches between day and night and remembers the choice", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/");
