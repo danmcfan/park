@@ -1,5 +1,6 @@
 // All site content lives here. Photos are placeholders until real media is
-// processed into public/media/<slug>/ — set `src` on a photo to swap it in.
+// processed into public/media/<slug>/ — set `src` (and `type: "video"` for
+// clips) on a photo to swap it in.
 
 import type { IconName } from "../components/Icon";
 
@@ -10,6 +11,9 @@ export interface PhotoSlot {
   shape: PhotoShape;
   caption?: string;
   src?: string;
+  // Defaults to "image". Videos autoplay muted on loop, like a moving photo.
+  type?: "image" | "video";
+  poster?: string;
 }
 
 export interface Park {

@@ -8,20 +8,21 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 
 ## Stack
 - **Bun only** — never npm/yarn/pnpm. `bun install`, `bun run dev`, `bun run build`.
-- Vite + SolidJS + GSAP (ScrollTrigger), TypeScript (strict). `bun run typecheck`; `build` runs `tsc` first.
+- Vite + SolidJS, TypeScript (strict). `bun run typecheck`; `build` runs `tsc` first.
 - Deploys via `.github/workflows/deploy.yml` on push to `main` (builds `dist/`).
 - `public/CNAME` holds the custom domain — don't delete it.
 
 ## Layout
-- `src/data/parks.ts` — all content (park themes, map coords, journal, photos). Photos are
-  inline-SVG placeholders for now; real media will live in `public/media/<slug>/`.
-- `src/App.tsx` — page structure + all ScrollTrigger wiring (active park, route progress,
-  photo drop-in, parallax).
-- `src/components/` — `Board` (park section: black band, hero, journal/facts, felt photo board),
-  `RouteMap` (brochure-style SVG route used in the rail and full-screen "drive" sections),
-  `Photo` (image or tinted placeholder at a fixed aspect), `Icon` (line icons for enamel pins).
-- `src/styles.css` — all styles; below 1100px the route rail hides and the top bar nav is the TOC.
-- Design direction is NPS-inspired (see `docs/DESIGN.md` v2) — keep it restrained.
+- `src/data/parks.ts` — all content (park themes, journal, facts, photos/videos). Media is
+  placeholder until `src` is set; real media will live in `public/media/<slug>/`. Some fields
+  (`hero`, `journal`, `facts`, `icons`, `map`, `legs`) aren't rendered yet.
+- `src/App.tsx` — site title, then one `ParkSection` per park.
+- `src/components/` — `ParkSection` (title block + gallery), `Gallery` (aligned collage
+  grid; resizes a few tiles so every grid packs with no holes at 3 and 2 columns), `Media`
+  (image, muted looping video, or placeholder), `Icon` (line icons, currently unused).
+- `src/styles.css` — all styles; light and dark mode via `prefers-color-scheme`.
+- The design is intentionally minimal right now; components get styled up one at a time.
+  `docs/DESIGN.md` describes the earlier NPS-inspired direction.
 
 ## Conventions
 - Only optimized media in the repo (WebP ~1600px, short 720p clips). Originals never committed.
