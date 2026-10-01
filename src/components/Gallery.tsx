@@ -1,5 +1,6 @@
 import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { aspectOf, type PhotoSlot } from "../data/parks";
+import Lightbox from "./Lightbox";
 import Media from "./Media";
 
 const GAP = 8;
@@ -39,6 +40,14 @@ function partition(aspects: number[], k: number): number[][] {
 export default function Gallery(props: { items: PhotoSlot[] }) {
   let el!: HTMLDivElement;
   const [width, setWidth] = createSignal(0);
+  const [open, setOpen] = createSignal<number | null>(null);
+  // Tile that opened the lightbox. Safari doesn't focus buttons on click, so
+  // focus is handed back explicitly on close rather than left to <dialog>.
+  let opener: HTMLElement | undefined;
+  const setIndex = (i: number | null) => {
+    setOpen(i);
+    if (i === null) opener?.focus({ preventScroll: true });
+  };
 
   onMount(() => {
     setWidth(el.clientWidth);
@@ -71,6 +80,16 @@ export default function Gallery(props: { items: PhotoSlot[] }) {
                 return (
                   <figure class="tile" style={{ flex: `${aspect * 100} 1 0`, "aspect-ratio": `${aspect}` }}>
                     <Media item={item} />
+                    {item.src && (
+                      <button
+                        class="tile-open"
+                        aria-label={`View ${item.caption ?? (item.type === "video" ? "video" : "photo")} full screen`}
+                        onClick={(e) => {
+                          opener = e.currentTarget;
+                          setOpen(i);
+                        }}
+                      />
+                    )}
                   </figure>
                 );
               }}
@@ -78,6 +97,7 @@ export default function Gallery(props: { items: PhotoSlot[] }) {
           </div>
         )}
       </For>
+      <Lightbox items={props.items} index={open()} onIndex={setIndex} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Match, Switch, onCleanup, onMount } from "solid-js";
 import type { PhotoSlot } from "../data/parks";
 
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+export const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Muted loop that plays only while on screen, rather than trusting each
 // browser's autoplay rules. With reduced motion it waits for the user instead.

@@ -65,7 +65,61 @@ main {
 /* Absolutely positioned so the media's own pixel size never affects the tile. */
 .media { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
 .media-placeholder { display: grid; place-items: center; color: var(--ink-2); }
+/* Invisible button over a tile's media that opens the lightbox. */
+.tile-open {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  padding: 0; border: 0; background: none; cursor: zoom-in;
+}
+.tile-open:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+
 .media-placeholder svg {
   width: 28px; height: 28px; opacity: .45;
   fill: none; stroke: currentColor; stroke-width: 1.5;
 }
+
+/* ---------- Lightbox ---------- */
+/* Always dark, whatever the page theme, so media reads true to color. */
+html:has(.lightbox[open]) { overflow: hidden; }
+.lightbox {
+  --pad: clamp(12px, 4vw, 56px);
+  --caption: 56px;
+  position: fixed; inset: 0;
+  width: 100%; height: 100%; max-width: none; max-height: none;
+  margin: 0; padding: var(--pad); border: 0;
+  background: rgb(10 10 9 / .96); color: #f2eee6;
+}
+.lightbox[open] { display: grid; place-items: center; }
+.lightbox::backdrop { background: transparent; }
+.lightbox-figure { margin: 0; }
+/* Sized from the known aspect so photos and videos fit the screen the same
+   way, before anything has loaded. */
+.lightbox-media {
+  display: block;
+  width: min(100vw - 2 * var(--pad), (100dvh - 2 * var(--pad) - var(--caption)) * var(--aspect));
+  aspect-ratio: var(--aspect);
+  object-fit: contain;
+  background: #000;
+}
+.lightbox figcaption {
+  display: flex; justify-content: space-between; gap: 16px;
+  min-height: var(--caption); padding-top: 12px;
+  font-size: .95rem; color: #d6d0c4;
+}
+.lightbox-count { color: #9a948a; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lightbox button {
+  position: absolute; display: grid; place-items: center;
+  width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+  background: rgb(0 0 0 / .5); color: #fff;
+  font: 400 28px/1 var(--sans); cursor: pointer;
+}
+.lightbox button:hover { background: rgb(40 40 38 / .8); }
+.lightbox button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.lightbox-close { top: 12px; right: 12px; }
+.lightbox-nav { top: 50%; translate: 0 -50%; }
+.lightbox-prev { left: 12px; }
+.lightbox-next { right: 12px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox[open] { animation: lightbox-in .18s ease-out; }
+}
+@keyframes lightbox-in { from { opacity: 0; } }

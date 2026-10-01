@@ -21,7 +21,8 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 - `src/App.tsx` — site title, then one `ParkSection` per park.
 - `src/components/` — `ParkSection` (title block + gallery), `Gallery` (justified rows: items
   keep their true aspect, rows balanced so every row incl. the last spans the full width),
-  `Media` (image, muted loop video that plays only while on screen, or placeholder), `Icon`
+  `Media` (image, muted loop video that plays only while on screen, or placeholder),
+  `Lightbox` (modal `<dialog>` viewer per gallery: arrows/swipe, Esc/backdrop to close), `Icon`
   (line icons, currently unused).
 - `src/styles.css` — all styles; light and dark mode via `prefers-color-scheme`.
 - The design is intentionally minimal right now; components get styled up one at a time.
