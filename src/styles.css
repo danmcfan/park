@@ -200,6 +200,8 @@ main {
 
 /* ---------- Park ---------- */
 .park { padding-top: 64px; scroll-margin-top: var(--scroll-offset); }
+/* Room to scroll the last park's title to the top, however few prints it has. */
+.park:last-child { min-height: calc(100dvh - var(--scroll-offset)); }
 .park-title {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
   padding-bottom: 12px; margin-bottom: 28px;
@@ -298,17 +300,6 @@ main {
   @keyframes pin-hole {
     0% { background: transparent; }
     62% { background: rgb(30 16 4 / .7); }
-  }
-}
-
-/* With a real pointer, hovering lifts the board's top left corner off the
-   page toward the light; it settles back when the pointer leaves. */
-@media (prefers-reduced-motion: no-preference) and (hover: hover) {
-  .state-map { transition: transform .4s cubic-bezier(.34, 1.56, .64, 1); }
-  .state-map svg { transition: filter .4s; }
-  .state-map:hover { transform: perspective(420px) rotateX(-12deg) rotateY(14deg) translateY(-3px); }
-  .state-map:hover svg {
-    filter: drop-shadow(0 2px 2px var(--board-shadow)) drop-shadow(5px 14px 12px var(--board-shadow));
   }
 }
 
