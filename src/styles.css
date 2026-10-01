@@ -78,6 +78,8 @@
 }
 
 * { box-sizing: border-box; }
+/* No rubber-band bounce past the top or bottom of the page. */
+html, body { overscroll-behavior-y: none; }
 body {
   margin: 0;
   background: var(--weave), var(--canvas);
@@ -176,8 +178,10 @@ main {
 }
 
 @media (max-width: 899px) {
+  /* Fixed like the day/night patch, not sticky: on iOS a sticky bar rides the
+     page's rubber band while a fixed one doesn't, and the patch slid off it. */
   .park-nav {
-    position: sticky; top: 0; left: 0;
+    position: fixed; top: 0; left: 0; right: 0; bottom: auto;
     width: auto; height: var(--bar);
     flex-direction: row; justify-content: space-evenly;
     gap: 8px;
@@ -189,7 +193,7 @@ main {
   .park-nav-badge img { height: calc(var(--bar) - 18px); }
   .theme-toggle { top: calc((var(--bar) - 44px) / 2); right: var(--gutter); width: 44px; height: 44px; }
   :root { --scroll-offset: calc(var(--bar) - 32px); --gap: 14px; }
-  main { padding-top: 8px; }
+  main { padding-top: calc(var(--bar) + 8px); }
   /* Just enough room under the sash for Zion's pin to stand clear of it. */
   .park:first-child {
     padding-top: 20px;
