@@ -167,8 +167,8 @@ export async function exportAll(dump: string, items: Item[], log: (line: string)
       const src = `/media/${slug}/${names[0][0]}`;
       slots.push(
         item.type === "image"
-          ? { type: "image", orientation: b.orientation, caption: item.caption!.trim(), src }
-          : { type: "video", orientation: b.orientation, caption: item.caption!.trim(), src, poster: `/media/${slug}/${names[1][0]}` },
+          ? { type: "image", orientation: b.orientation, caption: item.caption?.trim() || undefined, src }
+          : { type: "video", orientation: b.orientation, caption: item.caption?.trim() || undefined, src, poster: `/media/${slug}/${names[1][0]}` },
       );
     }
     for (const f of await readdir(dir)) if (!keep.has(f)) await rm(join(dir, f));

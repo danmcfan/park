@@ -96,13 +96,12 @@ export function outputStems(paths: string[]) {
   });
 }
 
-// What stops an export: included items without a park or a caption, or with a bad clip.
+// What stops an export: included items without a park, or with a bad clip. Captions are optional.
 export function exportProblems(items: Item[]) {
   const problems: string[] = [];
   for (const i of items) {
     if (!i.include) continue;
     if (!(i.park ?? i.suggestedPark)) problems.push(`${i.path}: no park`);
-    if (!i.caption?.trim()) problems.push(`${i.path}: no caption`);
     if (i.type === "video") {
       const { start, end } = clipOf(i);
       if (!(end > start)) problems.push(`${i.path}: clip ends before it starts`);

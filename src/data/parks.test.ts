@@ -28,10 +28,9 @@ describe("parks data", () => {
       if (item.src) expect(item.src.startsWith(`/media/${park}/`), item.src).toBe(true);
   });
 
-  it("gives every video a poster and every real item a caption", () => {
+  it("gives every video a poster", () => {
     for (const { item } of allMedia) {
       if (item.type === "video" && item.src) expect(item.poster, item.src).toBeTruthy();
-      if (item.src) expect(item.caption, item.src).toBeTruthy();
     }
   });
 });

@@ -90,9 +90,9 @@ describe("clips and export checks", () => {
     expect(clipOf(item({ type: "video", duration: 10, start: 2, end: 20, poster: 1 }))).toEqual({ start: 2, end: 10, poster: 2 });
   });
 
-  it("needs a park and a caption for everything included", () => {
+  it("needs a park for everything included, but not a caption", () => {
     expect(exportProblems([item({ include: true, suggestedPark: "zion", caption: "Hi" }), item({ path: "b.jpg" })])).toEqual([]);
-    expect(exportProblems([item({ include: true, caption: " " })])).toEqual(["a.jpg: no park", "a.jpg: no caption"]);
+    expect(exportProblems([item({ include: true, caption: " " })])).toEqual(["a.jpg: no park"]);
     expect(
       exportProblems([item({ include: true, park: "zion", caption: "c", type: "video", duration: 5, start: 4, end: 3 })]),
     ).toEqual(["a.jpg: clip ends before it starts"]);
