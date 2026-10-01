@@ -7,3 +7,7 @@ dist/
 # Secrets
 .env
 .env.*
+
+# Playwright output
+test-results/
+playwright-report/

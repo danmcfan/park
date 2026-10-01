@@ -1,3 +1,6 @@
+import ChevronLeft from "lucide-solid/icons/chevron-left";
+import ChevronRight from "lucide-solid/icons/chevron-right";
+import X from "lucide-solid/icons/x";
 import { Show, createEffect, createMemo } from "solid-js";
 import { aspectOf, type PhotoSlot } from "../data/parks";
 import { reducedMotion } from "./Media";
@@ -81,14 +84,14 @@ export default function Lightbox(props: {
       </Show>
 
       <button class="lightbox-close" aria-label="Close" onClick={() => dialog.close()}>
-        ×
+        <X aria-hidden="true" />
       </button>
       <Show when={viewable().length > 1}>
         <button class="lightbox-nav lightbox-prev" aria-label="Previous" onClick={() => step(-1)}>
-          ‹
+          <ChevronLeft aria-hidden="true" />
         </button>
         <button class="lightbox-nav lightbox-next" aria-label="Next" onClick={() => step(1)}>
-          ›
+          <ChevronRight aria-hidden="true" />
         </button>
       </Show>
     </dialog>

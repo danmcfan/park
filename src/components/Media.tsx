@@ -1,3 +1,4 @@
+import Camera from "lucide-solid/icons/camera";
 import { Match, Switch, onCleanup, onMount } from "solid-js";
 import type { PhotoSlot } from "../data/parks";
 
@@ -43,10 +44,7 @@ export default function Media(props: { item: PhotoSlot }) {
     <Switch
       fallback={
         <div class="media media-placeholder" role="img" aria-label={label() || "Photo coming soon"}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 7h3l2-3h6l2 3h3v12H4z" />
-            <circle cx="12" cy="13" r="3.5" />
-          </svg>
+          <Camera aria-hidden="true" />
         </div>
       }
     >
