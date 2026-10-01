@@ -115,25 +115,21 @@ test("a park's pin drops in only once its map is seen", async ({ page }) => {
   await expect.poll(() => map.locator(".pin-body").evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
 });
 
-test("hovering a map tilts the board", async ({ page }) => {
+test("hovering a map leaves the board where it is", async ({ page }) => {
   test.skip(isPhone(page), "no hover on touch screens");
   const map = page.locator("#zion .state-map");
-  expect(await map.evaluate((el) => getComputedStyle(el).transform)).toBe("none");
   await map.hover();
-  await expect.poll(() => map.evaluate((el) => getComputedStyle(el).transform)).toMatch(/^matrix3d/);
+  await page.waitForTimeout(500);
+  expect(await map.evaluate((el) => getComputedStyle(el).transform)).toBe("none");
 });
 
 test.describe("with reduced motion", () => {
   test.use({ contextOptions: { reducedMotion: "reduce" } });
 
-  test("pins are already in and boards don't tilt", async ({ page }) => {
+  test("pins are already in, with no drop", async ({ page }) => {
     const map = page.locator("#yellowstone .state-map");
     expect(await map.locator(".pin-body").evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
     await map.scrollIntoViewIfNeeded();
     expect(await map.evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
-    if (!isPhone(page)) {
-      await map.hover();
-      expect(await map.evaluate((el) => getComputedStyle(el).transform)).toBe("none");
-    }
   });
 });
