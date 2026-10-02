@@ -79,5 +79,5 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 - Candidates land in `raw/badges/<slug>-<n>.png` (gitignored, local only). References for style are
   in `raw/badge-refs/`; they're third-party designs, so prompts must ask for an original design.
 - `scripts/cut-badge.sh <slug> [option]` cuts the chosen one off its white background into
-  `public/media/badges/<slug>.webp`, which `ParkNav` uses. Option 1 of each is in use now.
+  `public/media/badges/<slug>.webp`, which `ParkNav` uses. In use: zion 1, bryce 3, grand-teton 3, yellowstone 3.
 
