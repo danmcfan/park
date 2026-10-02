@@ -37,7 +37,6 @@ export function partition(aspects: number[], k: number): number[][] {
   return rows;
 }
 
-
 // Stable small tilt and tape style for a print, derived from a string key
 // (its media path or caption) so a print looks the same on every render and
 // screen size. Tilt is 0.4–1.4° and alternates direction with `index`.

@@ -1,8 +1,7 @@
 import Camera from "lucide-solid/icons/camera";
 import { Match, Switch, onCleanup, onMount } from "solid-js";
 import type { PhotoSlot } from "../data/parks";
-
-export const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+import { reducedMotion } from "../lib/motion";
 
 // Muted loop that plays only while on screen, rather than trusting each
 // browser's autoplay rules. With reduced motion it waits for the user instead.

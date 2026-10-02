@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { parks } from "../src/data/parks";
 import { expect, isPhone, test } from "./fixtures";
 
@@ -33,7 +34,8 @@ test("never scrolls sideways", async ({ page }) => {
   expect(overflow).toBeLessThanOrEqual(0);
 });
 
-test("every gallery row is flush to both edges with prints of equal height", async ({ page }) => {
+// Every gallery row is flush to both edges, with prints of equal height.
+const expectJustifiedRows = async (page: Page) => {
   const galleries = await page.locator(".gallery").evaluateAll((gs) =>
     gs.map((g) => {
       const gw = (g as HTMLElement).offsetWidth;
@@ -55,6 +57,23 @@ test("every gallery row is flush to both edges with prints of equal height", asy
       expect(Math.abs(r.rightGap)).toBeLessThanOrEqual(1);
       expect(r.heightSpread).toBeLessThanOrEqual(1);
     }
+};
+
+const rowCounts = (page: Page) =>
+  page.locator(".gallery").evaluateAll((gs) => gs.map((g) => g.querySelectorAll(".gallery-row").length));
+
+test("every gallery row is flush to both edges with prints of equal height", async ({ page }) => {
+  await expectJustifiedRows(page);
+});
+
+// A new row count changes a gallery's height; doing that inside the
+// ResizeObserver callback makes browsers report a ResizeObserver loop error.
+test("re-flows the rows cleanly when the window narrows", async ({ page }) => {
+  const before = await rowCounts(page);
+  const vp = page.viewportSize()!;
+  await page.setViewportSize({ width: Math.round(vp.width * 0.7), height: vp.height });
+  await expect.poll(() => rowCounts(page)).not.toEqual(before);
+  await expectJustifiedRows(page);
 });
 
 test("prints are taped down with a small tilt", async ({ page }) => {

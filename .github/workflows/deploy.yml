@@ -26,8 +26,22 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+  e2e:
+    # macOS, as locally: real WebKit (Safari's engine) and H.264 playback.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bunx playwright install chromium webkit
+      - run: bun run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/
   deploy:
-    needs: build
+    needs: [build, e2e]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

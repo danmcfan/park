@@ -26,7 +26,7 @@ cached in `raw/.curate-cache/` (both gitignored, safe to delete).
 Everything the site needs is in `public/media/` and `src/data/media.ts`, so:
 
 - delete `curate/`
-- in `package.json`, remove the `curate` script, `&& tsc -p curate` from `typecheck`,
-  and the `@types/bun` dev dependency (`bun remove @types/bun`)
+- in `package.json`, remove the `curate` script and `&& tsc -p curate` from `typecheck`
+  (keep `@types/bun`: `scripts/` uses it too)
 - in `vitest.config.ts`, remove `"curate/**/*.test.ts"`
 - remove the "Curate tool" section from `CLAUDE.md` and the media.ts comment's mention of it

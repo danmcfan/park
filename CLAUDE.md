@@ -8,20 +8,22 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 
 ## Stack
 - **Bun only** — never npm/yarn/pnpm. `bun install`, `bun run dev`, `bun run build`.
-- Vite + SolidJS, TypeScript (strict), Fraunces (titles) + Work Sans (text) from Google
-  Fonts, Lucide icons (`lucide-solid/icons/<name>`, one import per
-  icon). `bun run typecheck` checks app and tests; `build` runs it first.
-- Deploys via `.github/workflows/deploy.yml` on push to `main` (builds `dist/`).
+- Vite + SolidJS, TypeScript (strict, plus no unused locals/parameters), Fraunces (titles)
+  + Work Sans (text) from Google Fonts, Lucide icons (`lucide-solid/icons/<name>`, one
+  import per icon). `bun run typecheck` checks app, tests, `curate/` and `scripts/`;
+  `build` runs it first.
+- Deploys via `.github/workflows/deploy.yml` on push to `main` (builds `dist/`) once the
+  unit tests, build and e2e suite (on macOS) all pass.
 - `public/CNAME` holds the custom domain — don't delete it.
 
 ## Layout
-- `src/data/parks.ts` — all content (park themes, journal, facts, placeholder slots). Real media
-  is in `src/data/media.ts` (written by the curate tool's export); aspect is
-  fixed by the iPhone 17 Pro (photos 4:3, videos 16:9, either orientation). Media without
-  `src` is a placeholder. Some fields (`hero`, `journal`, `facts`, `icons`, `legs`)
-  aren't rendered yet.
+- `src/data/parks.ts` — the parks in trip order (name, state, pin location, `accent` color,
+  placeholder slots) and `aspectOf`. Real media is in `src/data/media.ts` (written by the
+  curate tool's export); aspect is fixed by the iPhone 17 Pro (photos 4:3, videos 16:9,
+  either orientation). Media without `src` is a placeholder.
 - `src/App.tsx` — `ParkNav`, then one `ParkSection` per park (no site title; the page starts at Zion).
 - `src/lib/justify.ts` — gallery layout math (row partition, row count, print tilt/tape).
+  `src/lib/motion.ts` — the `prefers-reduced-motion` flag.
 - `src/components/` — `ParkNav` (embroidered badge links on a canvas sash: fixed left rail ≥900px,
   sticky top bar below), `ThemeToggle` (rust day/night patch, top right, contrasting with the sash), `ParkSection` (park name + `StateMap`, then the gallery), `StateMap` (the
   park's state from `src/data/states.ts`, projected in `src/lib/geo.ts`, as a cork board with a
@@ -30,11 +32,10 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
   keep their true aspect, rows balanced so every row incl. the last spans the full width),
   `Gallery` prints are white-bordered, taped, slightly tilted. `Media` (image, muted loop video
   that plays only while on screen, or placeholder),
-  `Lightbox` (modal `<dialog>` viewer per gallery: arrows/swipe, Esc/backdrop to close), `Icon`
-  (line icons, currently unused).
+  `Lightbox` (modal `<dialog>` viewer per gallery: arrows/swipe, Esc/backdrop to close).
 - `src/styles.css` — all styles; light and dark mode via `prefers-color-scheme`.
-- Design: a tidy scrapbook on canvas (aligned rows, small tilts, captions only in the lightbox).
-  `docs/DESIGN.md` describes the earlier NPS-inspired direction and is out of date.
+- Design: a tidy scrapbook on canvas (aligned rows, small tilts, captions only in the lightbox);
+  see `docs/DESIGN.md`.
 
 ## Conventions
 - Only optimized media in the repo, metadata (incl. GPS) always stripped. Originals never committed.
@@ -47,11 +48,14 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
   `index.html` (saved choice, else system). All colors are tokens on `:root` / `[data-theme="night"]`.
 
 ## Testing
-- `bun run test` — Vitest unit tests (`src/**/*.test.ts`): gallery layout math, content data
-  (every media/badge file exists, captions, posters). Runs in CI before every deploy.
+- `bun run test` — Vitest unit tests (`src/**/*.test.ts`, `curate/**/*.test.ts`): gallery
+  layout math, state maps, content data (every media/badge file exists, posters), and the
+  media files themselves (true size and shape, no EXIF/XMP/GPS, no audio, no unused files).
 - `bun run test:e2e` — Playwright (`e2e/`) against a production build on desktop Chromium and
   iPhone WebKit: layout, nav, media playback, lightbox, theme, reduced motion. Any page error or
-  console error fails a test. `@playwright/test` is pinned to the locally installed browsers.
+  console error fails a test. Expectations are derived from `parks`/`media`, never hard-coded
+  counts or captions; video tests skip until the trip has videos.
+  `@playwright/test` is pinned to the locally installed browsers.
   `BASE_URL=https://park.dannyobrien.dev bun run test:e2e` runs the same suite against the live site.
 - `bun run test:all` runs both. Add or update tests with every change.
 - Sandbox network blocks nps.gov / Wikimedia; real photos must come via Drive or an allowed host.

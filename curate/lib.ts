@@ -1,5 +1,5 @@
 // Pure helpers for the curate tool (no Bun or file system), unit tested in lib.test.ts.
-import type { Orientation, PhotoSlot } from "../src/data/parks";
+import { aspectOf, type Orientation, type PhotoSlot } from "../src/data/parks";
 import type { Item } from "./types";
 
 export const PHOTO_EXT = new Set([".jpg", ".jpeg", ".heic", ".heif", ".png"]);
@@ -60,16 +60,11 @@ export function nearestPark(
   return best?.slug;
 }
 
-// The site's fixed aspects (iPhone 17 Pro): photos 4:3, videos 16:9.
-export const targetAspect = (type: "image" | "video", orientation: Orientation) => {
-  const a = type === "image" ? 4 / 3 : 16 / 9;
-  return orientation === "landscape" ? a : 1 / a;
-};
-
-// Largest centered crop of w×h with the site's aspect for its orientation.
+// Largest centered crop of w×h with the site's aspect (4:3 photos, 16:9
+// videos) for its orientation.
 export function cropBox(type: "image" | "video", w: number, h: number) {
   const orientation: Orientation = w >= h ? "landscape" : "portrait";
-  const a = targetAspect(type, orientation);
+  const a = aspectOf({ type, orientation });
   const cw = Math.min(w, Math.round(h * a));
   const ch = Math.min(h, Math.round(w / a));
   return { orientation, w: cw, h: ch, x: Math.floor((w - cw) / 2), y: Math.floor((h - ch) / 2) };

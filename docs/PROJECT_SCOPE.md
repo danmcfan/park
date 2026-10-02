@@ -34,25 +34,25 @@ practical options, in order of preference:
    hand over directly.
 3. Manual drop into a local `raw/` folder (gitignored) in a local checkout.
 
-Then a script (to be written, e.g. `scripts/process_media.sh` using
-ImageMagick/`cwebp` + `ffmpeg`) produces web-ready files:
+Then the local curate tool (`curate/`, see its README) picks, captions and
+clips the media and exports web-ready files:
 
 | Type   | Output                                   | Target size |
 |--------|------------------------------------------|-------------|
-| Photo  | WebP (optionally AVIF) @ 1600px long edge + 400px thumb | 150–400 KB |
-| Video  | H.264 MP4, 720p, ≤ 30–45 s clips, no audio for ambient loops, + poster JPG | 2–10 MB |
+| Photo  | WebP, 1600px long edge, cropped to 4:3   | 100–750 KB  |
+| Video  | H.264 MP4, 720p 30fps, no audio, short loops, cropped to 16:9, + WebP poster | 2–10 MB |
 
-- Strip EXIF GPS if location privacy matters.
-- Output to `media/<park-slug>/`, plus a manifest `data/<park-slug>.json`
-  (file, caption, date, orientation, width/height) that the page renders from.
+- All metadata, GPS included, is stripped (unit tests check every file).
+- Output goes to `public/media/<park-slug>/`, listed in `src/data/media.ts`.
 - Budget: ~40–60 photos + ~5 clips per park keeps total well under 500 MB.
 - Long/full-quality videos: host on YouTube (unlisted) and embed instead.
 
 ## Decisions so far
-- ~50 photos per park; captions on some photos, a journal note per park.
-- Route map is the table of contents: sidebar on desktop (top chip bar on mobile),
-  full-screen between parks. Clicking a park scrolls to it.
-- Placeholders first; real photos next; videos last.
+- ~50 photos per park; captions on some photos (shown in the lightbox only).
+- Park badges are the table of contents: a rail on desktop, a bar on phones.
+  Clicking one scrolls to its park.
+- Placeholders first; real photos next (done); videos last.
+- Maybe later: a journal note per park.
 
 ## Out of scope (for now)
 Backend, comments, auth, CMS, maps with live data.

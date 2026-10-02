@@ -3,7 +3,7 @@ import ChevronRight from "lucide-solid/icons/chevron-right";
 import X from "lucide-solid/icons/x";
 import { Show, createEffect, createMemo } from "solid-js";
 import { aspectOf, type PhotoSlot } from "../data/parks";
-import { reducedMotion } from "./Media";
+import { reducedMotion } from "../lib/motion";
 
 // Full-screen viewer for one park's media, built on a modal <dialog> so the
 // browser handles focus trapping, Esc, and making the page behind it inert.

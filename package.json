@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "bun run typecheck && vite build",
-    "typecheck": "tsc && tsc -p tsconfig.test.json && tsc -p curate",
+    "typecheck": "tsc && tsc -p tsconfig.test.json && tsc -p curate && tsc -p scripts",
     "preview": "vite preview",
     "curate": "bun curate/server.ts",
     "test": "vitest run",

@@ -1,6 +1,5 @@
+import { parks } from "../src/data/parks";
 import { expect, isPhone, test } from "./fixtures";
-
-const slugs = ["zion", "bryce", "grand-teton", "yellowstone"];
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -8,9 +7,9 @@ test.beforeEach(async ({ page }) => {
 
 test("shows a loaded badge for each park", async ({ page }) => {
   const badges = page.locator(".park-nav-badge img");
-  await expect(badges).toHaveCount(4);
-  const loaded = await badges.evaluateAll((imgs) => imgs.map((i) => (i as HTMLImageElement).naturalWidth > 0));
-  expect(loaded).toEqual([true, true, true, true]);
+  await expect(badges).toHaveCount(parks.length);
+  const loaded = await badges.evaluateAll((imgs) => imgs.every((i) => (i as HTMLImageElement).naturalWidth > 0));
+  expect(loaded).toBe(true);
 });
 
 test("is a left rail on desktop and a top bar on phones", async ({ page }) => {
@@ -27,7 +26,7 @@ test("is a left rail on desktop and a top bar on phones", async ({ page }) => {
   }
 });
 
-for (const slug of slugs) {
+for (const { slug } of parks) {
   test(`badge jumps to ${slug}`, async ({ page }) => {
     await page.locator(`.park-nav-badge[href="#${slug}"]`).click();
     await expect(page).toHaveURL(new RegExp(`#${slug}$`));

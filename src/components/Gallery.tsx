@@ -4,7 +4,6 @@ import { partition, printStyle, rowCountFor } from "../lib/justify";
 import Lightbox from "./Lightbox";
 import Media from "./Media";
 
-
 // Justified collage: items keep their true aspect ratio (no cropping) and
 // every row, including the last, spans the full width.
 export default function Gallery(props: { items: PhotoSlot[] }) {
@@ -21,9 +20,20 @@ export default function Gallery(props: { items: PhotoSlot[] }) {
 
   onMount(() => {
     setWidth(el.clientWidth);
-    const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+    // Applied on the next frame: a new row count changes the gallery's own
+    // height, and changing it inside the callback is a ResizeObserver loop
+    // error. (WebKit can mount before the stylesheet applies, so the first
+    // width read above may be off and corrected here.)
+    let frame = 0;
+    const ro = new ResizeObserver(([entry]) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setWidth(entry.contentRect.width));
+    });
     ro.observe(el);
-    onCleanup(() => ro.disconnect());
+    onCleanup(() => {
+      ro.disconnect();
+      cancelAnimationFrame(frame);
+    });
   });
 
   const aspects = createMemo(() => props.items.map(aspectOf));

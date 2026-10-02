@@ -1,8 +1,8 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 
-const theme = (page: import("@playwright/test").Page) =>
-  page.evaluate(() => document.documentElement.dataset.theme);
-const bg = (page: import("@playwright/test").Page) =>
+const theme = (page: Page) => page.evaluate(() => document.documentElement.dataset.theme);
+const bg = (page: Page) =>
   page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 
 test("follows the system setting when nothing is saved", async ({ browser }) => {

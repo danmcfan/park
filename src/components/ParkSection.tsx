@@ -4,7 +4,7 @@ import StateMap from "./StateMap";
 
 export default function ParkSection(props: { park: Park }) {
   return (
-    <section id={props.park.slug} class="park" style={{ "--accent": props.park.theme.accent }}>
+    <section id={props.park.slug} class="park" style={{ "--accent": props.park.accent }}>
       <header class="park-title">
         <h2>{props.park.name}</h2>
         <StateMap park={props.park} />
