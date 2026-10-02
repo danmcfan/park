@@ -1,8 +1,9 @@
 import ChevronLeft from "lucide-solid/icons/chevron-left";
 import ChevronRight from "lucide-solid/icons/chevron-right";
 import X from "lucide-solid/icons/x";
-import { Show, createEffect, createMemo } from "solid-js";
-import { aspectOf, type PhotoSlot } from "../data/parks";
+import { Show, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { PHOTO_PX, aspectOf, srcsetOf, type PhotoSlot } from "../data/parks";
+import { lightboxWidth } from "../lib/lightbox";
 import { reducedMotion } from "../lib/motion";
 
 // Full-screen viewer for one park's media, built on a modal <dialog> so the
@@ -16,6 +17,15 @@ export default function Lightbox(props: {
   let dialog!: HTMLDialogElement;
   let swipeX = 0;
   let swipeY = 0;
+
+  // Window size, for the photo's `sizes`: full screen picks the smallest file
+  // that's sharp at this size and pixel density (up to 2400px on Retina).
+  const [viewport, setViewport] = createSignal([window.innerWidth, window.innerHeight]);
+  onMount(() => {
+    const resize = () => setViewport([window.innerWidth, window.innerHeight]);
+    window.addEventListener("resize", resize);
+    onCleanup(() => window.removeEventListener("resize", resize));
+  });
 
   const viewable = createMemo(() => props.items.flatMap((item, i) => (item.src ? [i] : [])));
   const position = () => viewable().indexOf(props.index ?? -1);
@@ -69,7 +79,13 @@ export default function Lightbox(props: {
                 playsinline
               />
             ) : (
-              <img class="lightbox-media" src={current.src} alt={current.caption ?? ""} />
+              <img
+                class="lightbox-media"
+                srcset={srcsetOf(current, PHOTO_PX)}
+                sizes={`${Math.ceil(lightboxWidth(viewport()[0], viewport()[1], aspectOf(current)))}px`}
+                src={current.src}
+                alt={current.caption ?? ""}
+              />
             )}
             <figcaption>
               <span>{current.caption}</span>

@@ -28,16 +28,24 @@ export const aspectOf = (item: Pick<PhotoSlot, "type" | "orientation">) => {
   return item.orientation === "landscape" ? a : 1 / a;
 };
 
-// Each photo comes in two sizes, by long edge: the full file at `src` for the
-// lightbox, and a small copy beside it (<name>-800.webp) for gallery prints.
-export const FULL_PX = 1600;
+// Each photo comes in three sizes, by long edge: the file at `src`, plus a
+// small and a large copy beside it as <name>-800.webp and <name>-2400.webp.
+// Gallery prints choose between small and full; full screen can use large.
 export const SMALL_PX = 800;
-export const smallSrc = (src: string) => src.replace(/\.webp$/, `-${SMALL_PX}.webp`);
+export const FULL_PX = 1600;
+export const LARGE_PX = 2400;
+export const PHOTO_PX = [SMALL_PX, FULL_PX, LARGE_PX] as const;
 
-// `srcset` for a photo, with each file's width worked out from its shape.
-export const srcsetOf = (item: PhotoSlot & { src: string }) => {
+// The file for a photo at one of PHOTO_PX.
+export const sizedSrc = (src: string, px: number) => (px === FULL_PX ? src : src.replace(/\.webp$/, `-${px}.webp`));
+
+// `srcset` offering a photo at `sizes`, with each file's width worked out
+// from its shape. Nothing for placeholders or videos.
+export const srcsetOf = (item: PhotoSlot, sizes: readonly number[]) => {
+  const { src } = item;
+  if (!src || item.type !== "image") return undefined;
   const width = (longEdge: number) => Math.round(longEdge * Math.min(1, aspectOf(item)));
-  return `${smallSrc(item.src)} ${width(SMALL_PX)}w, ${item.src} ${width(FULL_PX)}w`;
+  return sizes.map((px) => `${sizedSrc(src, px)} ${width(px)}w`).join(", ");
 };
 
 export interface Park {

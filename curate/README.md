@@ -13,7 +13,7 @@ not part of the public site and never deploys; delete it when you're done.
    start and end and the poster frame. Keys: ←/→ next/previous, X include,
    I/O start/end at the playhead, P poster, C play the clip, Space play/pause, Esc close.
 4. **Export to site** builds every included item into `public/media/<park>/`
-   (WebP photos at 1600px and 800px, 720p H.264 clips with posters, all metadata and GPS stripped,
+   (WebP photos at 800px, 1600px and 2400px, 720p H.264 clips with posters, all metadata and GPS stripped,
    cropped to 4:3 / 16:9) and rewrites `src/data/media.ts`. Those park folders
    end up holding exactly what you included, in capture order.
 5. Check with `bun run dev`, then commit `public/media/` and `src/data/media.ts`.

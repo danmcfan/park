@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { media } from "./media";
-import { aspectOf, parks, smallSrc, srcsetOf } from "./parks";
+import { FULL_PX, LARGE_PX, PHOTO_PX, SMALL_PX, aspectOf, parks, sizedSrc, srcsetOf } from "./parks";
 
 const inPublic = (src: string) => existsSync(`public${src}`);
 const allMedia = parks.flatMap((p) => p.photos.map((item) => ({ park: p.slug, item })));
@@ -45,14 +45,25 @@ describe("aspectOf", () => {
 });
 
 describe("srcsetOf", () => {
-  it("offers the small and full photo with their true widths", () => {
-    expect(smallSrc("/media/zion/img-1.webp")).toBe("/media/zion/img-1-800.webp");
-    expect(srcsetOf({ type: "image", orientation: "landscape", src: "/media/zion/img-1.webp" })).toBe(
-      "/media/zion/img-1-800.webp 800w, /media/zion/img-1.webp 1600w",
+  const landscape = { type: "image", orientation: "landscape", src: "/media/zion/img-1.webp" } as const;
+  const portrait = { type: "image", orientation: "portrait", src: "/media/zion/img-2.webp" } as const;
+
+  it("names each size beside the full file", () => {
+    expect(sizedSrc(landscape.src, FULL_PX)).toBe("/media/zion/img-1.webp");
+    expect(sizedSrc(landscape.src, SMALL_PX)).toBe("/media/zion/img-1-800.webp");
+    expect(sizedSrc(landscape.src, LARGE_PX)).toBe("/media/zion/img-1-2400.webp");
+  });
+
+  it("offers the requested sizes with their true widths", () => {
+    expect(srcsetOf(landscape, [SMALL_PX, FULL_PX])).toBe("/media/zion/img-1-800.webp 800w, /media/zion/img-1.webp 1600w");
+    expect(srcsetOf(portrait, PHOTO_PX)).toBe(
+      "/media/zion/img-2-800.webp 600w, /media/zion/img-2.webp 1200w, /media/zion/img-2-2400.webp 1800w",
     );
-    expect(srcsetOf({ type: "image", orientation: "portrait", src: "/media/zion/img-2.webp" })).toBe(
-      "/media/zion/img-2-800.webp 600w, /media/zion/img-2.webp 1200w",
-    );
+  });
+
+  it("has nothing for videos or placeholders", () => {
+    expect(srcsetOf({ type: "video", orientation: "landscape", src: "/media/zion/a.mp4" }, PHOTO_PX)).toBeUndefined();
+    expect(srcsetOf({ type: "image", orientation: "landscape" }, PHOTO_PX)).toBeUndefined();
   });
 });
 

@@ -39,7 +39,7 @@ clips the media and exports web-ready files:
 
 | Type   | Output                                   | Target size |
 |--------|------------------------------------------|-------------|
-| Photo  | WebP, cropped to 4:3, at 1600px and 800px long edge | 100–750 KB / 40–180 KB |
+| Photo  | WebP, cropped to 4:3, at 800px, 1600px and 2400px long edge | 40–180 KB / 100–750 KB / 0.2–1.6 MB |
 | Video  | H.264 MP4, 720p 30fps, no audio, short loops, cropped to 16:9, + WebP poster | 2–10 MB |
 
 - All metadata, GPS included, is stripped (unit tests check every file).

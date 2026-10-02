@@ -4,7 +4,7 @@
 import { createHash } from "node:crypto";
 import { copyFile, mkdir, readdir, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { FULL_PX, SMALL_PX, parks, type PhotoSlot } from "../src/data/parks";
+import { FULL_PX, PHOTO_PX, parks, type PhotoSlot } from "../src/data/parks";
 import { clipOf, cropBox, exportProblems, mediaModule, outputStems } from "./lib";
 import { CACHE, pool, run } from "./scan";
 import type { Item } from "./types";
@@ -90,7 +90,7 @@ export async function proxy(file: string) {
 
 const VERSION = 1; // bump when the output commands change, to rebuild everything
 
-// Photos at both sizes (see FULL_PX / SMALL_PX in parks.ts), each from the original.
+// Photos at every size in PHOTO_PX (see parks.ts), each from the original.
 async function buildPhoto(file: string, item: Item) {
   const box = cropBox("image", item.width!, item.height!);
   const key = hash([VERSION, "photo", file, await srcKey(file), box]);
@@ -99,9 +99,13 @@ async function buildPhoto(file: string, item: Item) {
       "magick", `${file}[0]`, "-auto-orient", "-gravity", "center", "-crop", `${box.w}x${box.h}+0+0`, "+repage",
       "-resize", `${px}x${px}>`, "-strip", "-quality", "82", o,
     ]);
-  const full = await cached("out", `${key}.webp`, build(FULL_PX));
-  const small = await cached("out", `${key}-${SMALL_PX}.webp`, build(SMALL_PX));
-  return { orientation: box.orientation, files: { "": full, [`-${SMALL_PX}`]: small } };
+  // The full size is the file at `src`; the others sit beside it as <name>-<px>.
+  const files: Record<string, string> = {};
+  for (const px of PHOTO_PX) {
+    const suffix = px === FULL_PX ? "" : `-${px}`;
+    files[suffix] = await cached("out", `${key}${suffix}.webp`, build(px));
+  }
+  return { orientation: box.orientation, files };
 }
 
 async function buildVideo(file: string, item: Item) {
@@ -165,11 +169,11 @@ export async function exportAll(dump: string, items: Item[], log: (line: string)
         return [name, from] as const;
       });
       for (const [name, from] of names) await copyFile(from, join(dir, name));
-      const src = `/media/${slug}/${names[0][0]}`;
+      const src = `/media/${slug}/${stems[n]}${ext}`;
       slots.push(
         item.type === "image"
           ? { type: "image", orientation: b.orientation, caption: item.caption?.trim() || undefined, src }
-          : { type: "video", orientation: b.orientation, caption: item.caption?.trim() || undefined, src, poster: `/media/${slug}/${names[1][0]}` },
+          : { type: "video", orientation: b.orientation, caption: item.caption?.trim() || undefined, src, poster: `/media/${slug}/${stems[n]}-poster.webp` },
       );
     }
     for (const f of await readdir(dir)) if (!keep.has(f)) await rm(join(dir, f));

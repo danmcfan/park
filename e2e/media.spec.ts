@@ -1,5 +1,6 @@
-import { SMALL_PX, aspectOf, parks, smallSrc } from "../src/data/parks";
-import { expect, test } from "./fixtures";
+import type { Page } from "@playwright/test";
+import { LARGE_PX, PHOTO_PX, SMALL_PX, aspectOf, parks, sizedSrc } from "../src/data/parks";
+import { expect, isPhone, test } from "./fixtures";
 
 const videoCount = parks.flatMap((p) => p.photos).filter((i) => i.src && i.type === "video").length;
 
@@ -19,7 +20,7 @@ test("photos load at their true orientation", async ({ page }) => {
   }
 });
 
-test("prints fetch the small photo when it's enough, the lightbox the full one", async ({ page }) => {
+test("prints fetch the small photo when it's enough", async ({ page }) => {
   const park = parks.find((p) => p.photos.some((i) => i.src && i.type === "image"))!;
   const photos = park.photos.filter((i) => i.src && i.type === "image");
   await page.goto(`/#${park.slug}`);
@@ -38,14 +39,51 @@ test("prints fetch the small photo when it's enough, the lightbox the full one",
     expect(sizes, photo.src).toBeLessThanOrEqual(width + 40);
     const smallWidth = Math.round(SMALL_PX * Math.min(1, aspectOf(photo)));
     const enough = smallWidth >= sizes * dpr;
-    expect(current, `${photo.src} at ${sizes}px × ${dpr}`).toBe(enough ? smallSrc(photo.src!) : photo.src);
+    expect(current, `${photo.src} at ${sizes}px × ${dpr}`).toBe(enough ? sizedSrc(photo.src!, SMALL_PX) : photo.src);
     if (enough) small++;
   }
   expect(small, "some prints use the small file").toBeGreaterThan(0);
+});
 
+// Steps through a park's media full screen, checking each photo is the
+// smallest file that's sharp at its size and pixel density. Returns how many
+// needed the large file.
+async function checkFullScreenFiles(page: Page) {
+  const park = parks.find((p) => p.photos.some((i) => i.src && i.type === "image"))!;
+  await page.goto(`/#${park.slug}`);
   await page.locator(`#${park.slug} .tile-open`).first().click();
-  const full = page.locator(`#${park.slug} dialog img`);
-  await expect.poll(() => full.evaluate((i) => new URL((i as HTMLImageElement).currentSrc).pathname)).toBe(photos[0].src);
+  const img = page.locator(`#${park.slug} dialog img`);
+  let large = 0;
+  for (const item of park.photos.filter((i) => i.src)) {
+    if (item.type === "image") {
+      await expect.poll(() => img.evaluate((i) => (i as HTMLImageElement).currentSrc)).not.toBe("");
+      const { current, sizes, width, dpr } = await img.evaluate((i) => {
+        const el = i as HTMLImageElement;
+        return { current: new URL(el.currentSrc).pathname, sizes: parseFloat(el.sizes), width: el.offsetWidth, dpr: devicePixelRatio };
+      });
+      // `sizes` is worked out in JS to match the CSS; they must agree.
+      expect(Math.abs(sizes - width), `${item.src}: sizes ${sizes}px, shown at ${width}px`).toBeLessThanOrEqual(1.5);
+      const widths = PHOTO_PX.map((px) => [px, Math.round(px * Math.min(1, aspectOf(item)))] as const);
+      const [px] = widths.find(([, w]) => w >= sizes * dpr) ?? widths[widths.length - 1];
+      expect(current, `${item.src} at ${sizes}px × ${dpr}`).toBe(sizedSrc(item.src!, px));
+      if (px === LARGE_PX) large++;
+    }
+    await page.keyboard.press("ArrowRight");
+  }
+  return large;
+}
+
+test("full screen fetches the smallest photo file that's sharp on this screen", async ({ page }) => {
+  await checkFullScreenFiles(page);
+});
+
+test.describe("on a Retina desktop", () => {
+  test.use({ deviceScaleFactor: 2 });
+
+  test("full screen uses the large photo file", async ({ page }) => {
+    test.skip(isPhone(page), "desktop only");
+    expect(await checkFullScreenFiles(page)).toBeGreaterThan(0);
+  });
 });
 
 test("videos play only while on screen", async ({ page }) => {

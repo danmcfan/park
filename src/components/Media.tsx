@@ -1,6 +1,6 @@
 import Camera from "lucide-solid/icons/camera";
 import { Match, Switch, onCleanup, onMount } from "solid-js";
-import { srcsetOf, type PhotoSlot } from "../data/parks";
+import { FULL_PX, SMALL_PX, srcsetOf, type PhotoSlot } from "../data/parks";
 import { reducedMotion } from "../lib/motion";
 
 // Muted loop that plays only while on screen, rather than trusting each
@@ -55,7 +55,7 @@ export default function Media(props: { item: PhotoSlot; sizes: string }) {
         {(src) => (
           <img
             class="media"
-            srcset={srcsetOf({ ...props.item, src: src() })}
+            srcset={srcsetOf(props.item, [SMALL_PX, FULL_PX])}
             sizes={props.sizes}
             src={src()}
             alt={label()}

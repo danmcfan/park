@@ -3,7 +3,7 @@
 // an old export, and no metadata (GPS above all) made it into the public repo.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { FULL_PX, SMALL_PX, aspectOf, parks, smallSrc } from "./parks";
+import { PHOTO_PX, aspectOf, parks, sizedSrc } from "./parks";
 
 // Every file under public/media, as site paths ("/media/zion/img-0553.webp").
 const published = readdirSync("public/media", { recursive: true })
@@ -68,15 +68,11 @@ const photos = items.filter((i) => i.type === "image");
 const videos = items.filter((i) => i.type === "video");
 
 describe("photo files", () => {
-  it.each(photos.map((i) => [i.src!, i] as const))("%s matches its orientation and size", (src, item) => {
+  // Each size's long edge must be exact: srcset widths are worked out from it.
+  const files = photos.flatMap((i) => PHOTO_PX.map((px) => [sizedSrc(i.src!, px), px, i] as const));
+  it.each(files)("%s is %ipx on the long edge, at its orientation", (src, px, item) => {
     const { width, height } = webpInfo(read(src));
-    expect(Math.max(width, height)).toBeLessThanOrEqual(FULL_PX);
-    expect(Math.abs(width / height - aspectOf(item))).toBeLessThan(0.01);
-  });
-
-  it.each(photos.map((i) => [smallSrc(i.src!), i] as const))("%s is the small copy, same shape", (src, item) => {
-    const { width, height } = webpInfo(read(src));
-    expect(Math.max(width, height)).toBe(SMALL_PX);
+    expect(Math.max(width, height)).toBe(px);
     expect(Math.abs(width / height - aspectOf(item))).toBeLessThan(0.01);
   });
 });
@@ -104,7 +100,7 @@ describe("video files", () => {
 describe("public/media", () => {
   it("holds only files the site uses", () => {
     const used = new Set(items.flatMap((i) => [i.src, i.poster]).filter(Boolean));
-    for (const p of photos) used.add(smallSrc(p.src!));
+    for (const p of photos) for (const px of PHOTO_PX) used.add(sizedSrc(p.src!, px));
     for (const p of parks) used.add(`/media/badges/${p.slug}.webp`);
     expect(published.filter((f) => !used.has(f))).toEqual([]);
   });
