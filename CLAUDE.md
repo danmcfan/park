@@ -39,7 +39,10 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
 
 ## Conventions
 - Only optimized media in the repo, metadata (incl. GPS) always stripped. Originals never committed.
-  - Photos: `magick IN.JPG -auto-orient -resize '1600x1600>' -strip -quality 82 OUT.webp`
+  - Photos, at two sizes: `magick IN.JPG -auto-orient -resize '1600x1600>' -strip -quality 82 OUT.webp`
+    and the same with `'800x800>'` into `OUT-800.webp`. Gallery prints use `srcset`/`sizes` (each
+    print's laid-out width) so phones fetch the small file; the lightbox shows the full one.
+    The sizes and file naming live in `parks.ts` (`FULL_PX`, `SMALL_PX`, `smallSrc`).
   - Videos (rotation baked in, no audio, 30fps 720p) plus a poster frame:
     `ffmpeg -i IN.MOV -map 0:v:0 -an -map_metadata -1 -vf "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)',fps=30" -c:v libx264 -preset slow -crf 26 -pix_fmt yuv420p -movflags +faststart OUT.mp4`
 - Respect `prefers-reduced-motion`.

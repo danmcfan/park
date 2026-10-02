@@ -39,51 +39,57 @@ export default function Gallery(props: { items: PhotoSlot[] }) {
   const aspects = createMemo(() => props.items.map(aspectOf));
   // Row count is its own memo so small width changes don't rebuild the rows
   // (which would recreate tiles and restart videos); only a new count does.
-  const rowCount = createMemo(() => rowCountFor(aspects(), width() || window.innerWidth));
+  const galleryWidth = () => width() || window.innerWidth;
+  const rowCount = createMemo(() => rowCountFor(aspects(), galleryWidth()));
   const rows = createMemo(() => partition(aspects(), rowCount()));
 
   return (
     <div class="gallery" ref={el}>
       <For each={rows()}>
-        {(row) => (
-          <div class="gallery-row">
-            <For each={row}>
-              {(i) => {
-                const item = props.items[i];
-                const aspect = aspectOf(item);
-                const print = printStyle(item.src ?? item.caption ?? String(i), i);
-                // Grow is scaled up because flex-grow values summing to <1 leave
-                // free space unfilled (a lone portrait photo is only 0.75).
-                return (
-                  <figure
-                    class={`tile tape-${print.tape}`}
-                    style={{
-                      flex: `${aspect * 100} 1 0`,
-                      "aspect-ratio": `${aspect}`,
-                      "--tilt": `${print.tilt.toFixed(2)}deg`,
-                    }}
-                  >
-                    <div class="tile-photo">
-                      <Media item={item} />
-                    </div>
-                    <span class="tape" aria-hidden="true" />
-                    <span class="tape" aria-hidden="true" />
-                    {item.src && (
-                      <button
-                        class="tile-open"
-                        aria-label={`View ${item.caption ?? (item.type === "video" ? "video" : "photo")} full screen`}
-                        onClick={(e) => {
-                          opener = e.currentTarget;
-                          setOpen(i);
-                        }}
-                      />
-                    )}
-                  </figure>
-                );
-              }}
-            </For>
-          </div>
-        )}
+        {(row) => {
+          const rowAspect = row.reduce((sum, j) => sum + aspects()[j], 0);
+          return (
+            <div class="gallery-row">
+              <For each={row}>
+                {(i) => {
+                  const item = props.items[i];
+                  const aspect = aspectOf(item);
+                  const print = printStyle(item.src ?? item.caption ?? String(i), i);
+                  // Rows fill the width, so a print gets its share of it by aspect.
+                  const sizes = () => `${Math.ceil((galleryWidth() * aspect) / rowAspect)}px`;
+                  // Grow is scaled up because flex-grow values summing to <1 leave
+                  // free space unfilled (a lone portrait photo is only 0.75).
+                  return (
+                    <figure
+                      class={`tile tape-${print.tape}`}
+                      style={{
+                        flex: `${aspect * 100} 1 0`,
+                        "aspect-ratio": `${aspect}`,
+                        "--tilt": `${print.tilt.toFixed(2)}deg`,
+                      }}
+                    >
+                      <div class="tile-photo">
+                        <Media item={item} sizes={sizes()} />
+                      </div>
+                      <span class="tape" aria-hidden="true" />
+                      <span class="tape" aria-hidden="true" />
+                      {item.src && (
+                        <button
+                          class="tile-open"
+                          aria-label={`View ${item.caption ?? (item.type === "video" ? "video" : "photo")} full screen`}
+                          onClick={(e) => {
+                            opener = e.currentTarget;
+                            setOpen(i);
+                          }}
+                        />
+                      )}
+                    </figure>
+                  );
+                }}
+              </For>
+            </div>
+          );
+        }}
       </For>
       <Lightbox items={props.items} index={open()} onIndex={setIndex} />
     </div>

@@ -1,6 +1,6 @@
 import Camera from "lucide-solid/icons/camera";
 import { Match, Switch, onCleanup, onMount } from "solid-js";
-import type { PhotoSlot } from "../data/parks";
+import { srcsetOf, type PhotoSlot } from "../data/parks";
 import { reducedMotion } from "../lib/motion";
 
 // Muted loop that plays only while on screen, rather than trusting each
@@ -35,8 +35,9 @@ function LoopVideo(props: { item: PhotoSlot }) {
 }
 
 // Renders an image, a muted looping video, or a tinted placeholder when no
-// `src` is set yet. Always fills its container; the gallery sets the size.
-export default function Media(props: { item: PhotoSlot }) {
+// `src` is set yet. Always fills its container; the gallery sets the size and
+// says how wide that is (`sizes`), so phones fetch the small photo file.
+export default function Media(props: { item: PhotoSlot; sizes: string }) {
   const label = () => props.item.caption ?? "";
 
   return (
@@ -51,7 +52,17 @@ export default function Media(props: { item: PhotoSlot }) {
         <LoopVideo item={props.item} />
       </Match>
       <Match when={props.item.src}>
-        <img class="media" src={props.item.src} alt={label()} loading="lazy" decoding="async" />
+        {(src) => (
+          <img
+            class="media"
+            srcset={srcsetOf({ ...props.item, src: src() })}
+            sizes={props.sizes}
+            src={src()}
+            alt={label()}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
       </Match>
     </Switch>
   );

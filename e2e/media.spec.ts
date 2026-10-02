@@ -1,4 +1,4 @@
-import { aspectOf, parks } from "../src/data/parks";
+import { SMALL_PX, aspectOf, parks, smallSrc } from "../src/data/parks";
 import { expect, test } from "./fixtures";
 
 const videoCount = parks.flatMap((p) => p.photos).filter((i) => i.src && i.type === "video").length;
@@ -17,6 +17,35 @@ test("photos load at their true orientation", async ({ page }) => {
     const [w, h] = await img.evaluate((i) => [(i as HTMLImageElement).naturalWidth, (i as HTMLImageElement).naturalHeight]);
     expect(w / h, photo.src).toBeCloseTo(aspectOf(photo), 2);
   }
+});
+
+test("prints fetch the small photo when it's enough, the lightbox the full one", async ({ page }) => {
+  const park = parks.find((p) => p.photos.some((i) => i.src && i.type === "image"))!;
+  const photos = park.photos.filter((i) => i.src && i.type === "image");
+  await page.goto(`/#${park.slug}`);
+  const imgs = page.locator(`#${park.slug} .tile img`);
+  let small = 0;
+  for (const [n, photo] of photos.entries()) {
+    const img = imgs.nth(n);
+    await img.scrollIntoViewIfNeeded();
+    await expect.poll(() => img.evaluate((i) => (i as HTMLImageElement).currentSrc)).not.toBe("");
+    const { current, sizes, width, dpr } = await img.evaluate((i) => {
+      const el = i as HTMLImageElement;
+      return { current: new URL(el.currentSrc).pathname, sizes: parseFloat(el.sizes), width: el.offsetWidth, dpr: devicePixelRatio };
+    });
+    // `sizes` is the print's share of its row, just over the photo inside the border.
+    expect(sizes, photo.src).toBeGreaterThanOrEqual(width);
+    expect(sizes, photo.src).toBeLessThanOrEqual(width + 40);
+    const smallWidth = Math.round(SMALL_PX * Math.min(1, aspectOf(photo)));
+    const enough = smallWidth >= sizes * dpr;
+    expect(current, `${photo.src} at ${sizes}px × ${dpr}`).toBe(enough ? smallSrc(photo.src!) : photo.src);
+    if (enough) small++;
+  }
+  expect(small, "some prints use the small file").toBeGreaterThan(0);
+
+  await page.locator(`#${park.slug} .tile-open`).first().click();
+  const full = page.locator(`#${park.slug} dialog img`);
+  await expect.poll(() => full.evaluate((i) => new URL((i as HTMLImageElement).currentSrc).pathname)).toBe(photos[0].src);
 });
 
 test("videos play only while on screen", async ({ page }) => {

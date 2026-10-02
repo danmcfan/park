@@ -4,8 +4,7 @@
 import { createHash } from "node:crypto";
 import { copyFile, mkdir, readdir, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { parks } from "../src/data/parks";
-import type { PhotoSlot } from "../src/data/parks";
+import { FULL_PX, SMALL_PX, parks, type PhotoSlot } from "../src/data/parks";
 import { clipOf, cropBox, exportProblems, mediaModule, outputStems } from "./lib";
 import { CACHE, pool, run } from "./scan";
 import type { Item } from "./types";
@@ -91,16 +90,18 @@ export async function proxy(file: string) {
 
 const VERSION = 1; // bump when the output commands change, to rebuild everything
 
+// Photos at both sizes (see FULL_PX / SMALL_PX in parks.ts), each from the original.
 async function buildPhoto(file: string, item: Item) {
   const box = cropBox("image", item.width!, item.height!);
   const key = hash([VERSION, "photo", file, await srcKey(file), box]);
-  const out = await cached("out", `${key}.webp`, (o) =>
+  const build = (px: number) => (o: string) =>
     run([
       "magick", `${file}[0]`, "-auto-orient", "-gravity", "center", "-crop", `${box.w}x${box.h}+0+0`, "+repage",
-      "-resize", "1600x1600>", "-strip", "-quality", "82", o,
-    ]),
-  );
-  return { orientation: box.orientation, files: { "": out } };
+      "-resize", `${px}x${px}>`, "-strip", "-quality", "82", o,
+    ]);
+  const full = await cached("out", `${key}.webp`, build(FULL_PX));
+  const small = await cached("out", `${key}-${SMALL_PX}.webp`, build(SMALL_PX));
+  return { orientation: box.orientation, files: { "": full, [`-${SMALL_PX}`]: small } };
 }
 
 async function buildVideo(file: string, item: Item) {

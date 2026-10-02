@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { media } from "./media";
-import { aspectOf, parks } from "./parks";
+import { aspectOf, parks, smallSrc, srcsetOf } from "./parks";
 
 const inPublic = (src: string) => existsSync(`public${src}`);
 const allMedia = parks.flatMap((p) => p.photos.map((item) => ({ park: p.slug, item })));
@@ -41,6 +41,18 @@ describe("aspectOf", () => {
     expect(aspectOf({ type: "image", orientation: "portrait" })).toBeCloseTo(3 / 4);
     expect(aspectOf({ type: "video", orientation: "landscape" })).toBeCloseTo(16 / 9);
     expect(aspectOf({ type: "video", orientation: "portrait" })).toBeCloseTo(9 / 16);
+  });
+});
+
+describe("srcsetOf", () => {
+  it("offers the small and full photo with their true widths", () => {
+    expect(smallSrc("/media/zion/img-1.webp")).toBe("/media/zion/img-1-800.webp");
+    expect(srcsetOf({ type: "image", orientation: "landscape", src: "/media/zion/img-1.webp" })).toBe(
+      "/media/zion/img-1-800.webp 800w, /media/zion/img-1.webp 1600w",
+    );
+    expect(srcsetOf({ type: "image", orientation: "portrait", src: "/media/zion/img-2.webp" })).toBe(
+      "/media/zion/img-2-800.webp 600w, /media/zion/img-2.webp 1200w",
+    );
   });
 });
 

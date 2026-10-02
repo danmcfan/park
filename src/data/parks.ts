@@ -28,6 +28,18 @@ export const aspectOf = (item: Pick<PhotoSlot, "type" | "orientation">) => {
   return item.orientation === "landscape" ? a : 1 / a;
 };
 
+// Each photo comes in two sizes, by long edge: the full file at `src` for the
+// lightbox, and a small copy beside it (<name>-800.webp) for gallery prints.
+export const FULL_PX = 1600;
+export const SMALL_PX = 800;
+export const smallSrc = (src: string) => src.replace(/\.webp$/, `-${SMALL_PX}.webp`);
+
+// `srcset` for a photo, with each file's width worked out from its shape.
+export const srcsetOf = (item: PhotoSlot & { src: string }) => {
+  const width = (longEdge: number) => Math.round(longEdge * Math.min(1, aspectOf(item)));
+  return `${smallSrc(item.src)} ${width(SMALL_PX)}w, ${item.src} ${width(FULL_PX)}w`;
+};
+
 export interface Park {
   slug: string;
   name: string;
