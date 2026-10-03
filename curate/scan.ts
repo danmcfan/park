@@ -64,8 +64,9 @@ async function photoMeta(file: string): Promise<Meta> {
   const f = "%[EXIF:DateTimeOriginal]|%[EXIF:GPSLatitude]|%[EXIF:GPSLatitudeRef]|%[EXIF:GPSLongitude]|%[EXIF:GPSLongitudeRef]|%w|%h|%[EXIF:Orientation]";
   const out = await run(["magick", "identify", "-ping", "-format", `${f}\n`, file]);
   const [date, lat, latRef, lon, lonRef, w, h, orient] = out.split("\n")[0].split("|");
-  // EXIF orientations 5–8 are turned a quarter, so width and height swap.
-  const turned = Number(orient) >= 5;
+  // EXIF orientations 5–8 are turned a quarter, so width and height swap;
+  // except HEIC, whose reported size is already turned (libheif applies it).
+  const turned = Number(orient) >= 5 && extOf(file) !== ".heic";
   return {
     type: "image",
     taken: exifDate(date),
@@ -99,6 +100,8 @@ async function videoMeta(file: string): Promise<Meta> {
   };
 }
 
+const META_VERSION = 2; // bump when photoMeta/videoMeta change, to reread everything
+
 export async function scan(dump: string): Promise<Scanned[]> {
   await mkdir(CACHE, { recursive: true });
   const cacheFile = Bun.file(join(CACHE, "meta.json"));
@@ -109,7 +112,7 @@ export async function scan(dump: string): Promise<Scanned[]> {
   const metas = await pool(files, 8, async (file) => {
     const path = relative(dump, file);
     const s = await stat(file);
-    const key = `${s.size}-${s.mtimeMs}`;
+    const key = `${META_VERSION}-${s.size}-${s.mtimeMs}`;
     let meta = cache[path]?.key === key ? cache[path].meta : undefined;
     if (!meta) {
       try {
