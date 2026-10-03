@@ -13,7 +13,7 @@ Read `docs/PROJECT_SCOPE.md` and `docs/DESIGN.md` for scope and design intent.
   import per icon). `bun run typecheck` checks app, tests, `curate/` and `scripts/`;
   `build` runs it first.
 - Deploys via `.github/workflows/deploy.yml` on push to `main` (builds `dist/`) once the
-  unit tests, build and e2e suite (on macOS) all pass.
+  unit tests and build pass. The e2e suite is for local verification only.
 - `public/CNAME` holds the custom domain — don't delete it.
 
 ## Layout
