@@ -26,6 +26,7 @@
   --sash: #c4b186;
   --stitch: #f6eedb;
   --print: #fbfaf5;
+  --secret-print: #c0392b;
   --print-shadow: rgb(60 44 18 / .32);
   --placeholder: #e7e1d4;
   --tape: rgb(250 246 232 / .62);
@@ -53,6 +54,7 @@
   --sash: #34402f;
   --stitch: #c9bc98;
   --print: #e9e5db;
+  --secret-print: #a8322a;
   --print-shadow: rgb(0 0 0 / .6);
   --placeholder: #d6d0c3;
   --tape: rgb(236 228 204 / .38);
@@ -243,8 +245,18 @@ main {
   --len: 15px;
   --lean: -14deg;
   --ball: 13px;
-  position: absolute; z-index: 1; width: 3px; height: 3px; translate: -50% -50%;
+  position: absolute; z-index: 1; width: 3px; height: 3px;
+  translate: calc(-50% + var(--dx, 0px)) calc(-50% + var(--dy, 0px));
   border-radius: 50%; background: rgb(30 16 4 / .7);
+  touch-action: none;
+}
+/* Pulled out: no hole under it, and it springs back home when let go. */
+.state-pin.dragging { background: transparent; z-index: 5; }
+.pin-head { cursor: grab; touch-action: none; }
+.pin-head::before { content: ""; position: absolute; inset: -8px; }
+.state-pin.dragging .pin-head { cursor: grabbing; }
+@media (prefers-reduced-motion: no-preference) {
+  .state-pin:not(.dragging) { transition: translate .25s cubic-bezier(.3, 1.4, .6, 1); }
 }
 .state-pin > span { position: absolute; left: 50%; top: 50%; }
 /* Needle and ball move as one, pivoting on the needle's tip. */
@@ -325,6 +337,8 @@ main {
   rotate: var(--tilt, 0deg);
   box-shadow: 0 1px 1px rgb(0 0 0 / .12), 0 8px 16px -8px var(--print-shadow);
 }
+/* The secret print, once unlocked, is bordered in red. */
+.tile.secret { background: var(--secret-print); }
 .tile-photo {
   position: absolute; inset: var(--print-border);
   overflow: hidden;

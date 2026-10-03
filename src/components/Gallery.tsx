@@ -62,6 +62,7 @@ export default function Gallery(props: { items: PhotoSlot[] }) {
                   return (
                     <figure
                       class={`tile tape-${print.tape}`}
+                      classList={{ secret: !!item.secret }}
                       style={{
                         flex: `${aspect * 100} 1 0`,
                         "aspect-ratio": `${aspect}`,

@@ -18,6 +18,8 @@ export interface PhotoSlot {
   src?: string;
   // Videos only: still frame shown before playback starts.
   poster?: string;
+  // The hidden print (see src/data/secret.ts): red-bordered.
+  secret?: boolean;
 }
 
 const LANDSCAPE_ASPECT: Record<MediaType, number> = { image: 4 / 3, video: 16 / 9 };

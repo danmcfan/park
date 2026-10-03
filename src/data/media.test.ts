@@ -4,6 +4,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { PHOTO_PX, aspectOf, parks, sizedSrc } from "./parks";
+import { secret } from "./secret";
 
 // Every file under public/media, as site paths ("/media/zion/img-0553.webp").
 const published = readdirSync("public/media", { recursive: true })
@@ -63,7 +64,8 @@ function mp4Info(b: Uint8Array) {
   return { boxes, handlers };
 }
 
-const items = parks.flatMap((p) => p.photos.filter((i) => i.src));
+// The secret print counts too: same sizes and checks, kept in its own folder.
+const items = [...parks.flatMap((p) => p.photos), secret.item].filter((i) => i.src);
 const photos = items.filter((i) => i.type === "image");
 const videos = items.filter((i) => i.type === "video");
 

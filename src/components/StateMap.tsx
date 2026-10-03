@@ -1,7 +1,9 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
 import type { Park } from "../data/parks";
 import { states } from "../data/states";
+import { secret } from "../data/secret";
 import { shapeOf } from "../lib/geo";
+import { unlock } from "../lib/secret";
 
 // The park's state cut from cork board at true proportions, named inside,
 // sitting a few millimetres proud of the page, with a ball-head map pin pushed
@@ -35,6 +37,43 @@ export default function StateMap(props: { park: Park }) {
     io.observe(figure);
     onCleanup(() => io.disconnect());
   });
+
+  // The pin can be pulled out and dragged around; let go and it springs back,
+  // unless it's pushed into the secret letter of the secret park's state.
+  let pin!: HTMLSpanElement;
+  let label!: SVGTextElement;
+  const [drag, setDrag] = createSignal<{ x: number; y: number } | null>(null);
+  const [stuck, setStuck] = createSignal(false);
+  let start = { x: 0, y: 0 };
+  const onSecretLetter = () => {
+    if (props.park.slug !== secret.park) return false;
+    const i = props.park.state.toUpperCase().indexOf(secret.letter);
+    const ctm = label.getScreenCTM();
+    if (i < 0 || !ctm) return false;
+    const box = label.getExtentOfChar(i);
+    const a = new DOMPoint(box.x, box.y).matrixTransform(ctm);
+    const b = new DOMPoint(box.x + box.width, box.y + box.height).matrixTransform(ctm);
+    const hole = pin.getBoundingClientRect();
+    const [x, y] = [hole.x + hole.width / 2, hole.y + hole.height / 2];
+    return x >= Math.min(a.x, b.x) && x <= Math.max(a.x, b.x) && y >= Math.min(a.y, b.y) && y <= Math.max(a.y, b.y);
+  };
+  const grab = (e: PointerEvent) => {
+    if (stuck()) return;
+    e.preventDefault();
+    pin.setPointerCapture(e.pointerId);
+    start = { x: e.clientX, y: e.clientY };
+    setDrag({ x: 0, y: 0 });
+  };
+  const move = (e: PointerEvent) => {
+    if (drag()) setDrag({ x: e.clientX - start.x, y: e.clientY - start.y });
+  };
+  const release = () => {
+    if (!drag()) return;
+    if (onSecretLetter()) {
+      setStuck(true);
+      unlock();
+    } else setDrag(null);
+  };
 
   return (
     <figure
@@ -85,14 +124,25 @@ export default function StateMap(props: { park: Park }) {
         </g>
         <path class="state-shape" d={path} filter={ref("cork")} />
         <path class="cork-sheen" d={path} fill={ref("sheen")} stroke={ref("rim")} />
-        <text class="state-name" x={lx * UNIT} y={ly * UNIT}>
+        <text ref={label} class="state-name" x={lx * UNIT} y={ly * UNIT}>
           {props.park.state}
         </text>
       </svg>
       {/* Centered on the hole the needle went in; the rest leans up and left. */}
       <span
+        ref={pin}
         class="state-pin"
-        style={{ left: `${(px / shape.width) * 100}%`, top: `${(py / shape.height) * 100}%` }}
+        classList={{ dragging: !!drag() && !stuck() }}
+        style={{
+          left: `${(px / shape.width) * 100}%`,
+          top: `${(py / shape.height) * 100}%`,
+          "--dx": `${drag()?.x ?? 0}px`,
+          "--dy": `${drag()?.y ?? 0}px`,
+        }}
+        onPointerDown={grab}
+        onPointerMove={move}
+        onPointerUp={release}
+        onPointerCancel={() => setDrag(null)}
       >
         <span class="pin-shadow" />
         <span class="pin-body">
